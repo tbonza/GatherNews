@@ -21,7 +21,7 @@ print(__doc__)
 # Author: Tyler Brown <tylers.pile@gmail.com>
 
 # Import RSS feed capture class
-from newsfind.capture import CaptureFeeds
+from gathernews.capture import CaptureFeeds
 
 # Instantiate the class
 capture_feeds = CaptureFeeds()
