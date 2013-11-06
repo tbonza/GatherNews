@@ -13,6 +13,7 @@ GatherNews allows you to specify which News sites you want to capture by
 providing the RSS link in "feeds_list.txt" like this:
 
     http://feeds.reuters.com/Reuters/worldNews
+    
     http://rss.cnn.com/rss/money_latest.rss
 
 You can then gather the news using these methods:
@@ -40,6 +41,7 @@ Installation
 To install GatherNews use pip:
 
 .. code-block:: bash
+		
     $ pip install gathernews
 
 Documentation
