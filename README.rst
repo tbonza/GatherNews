@@ -12,6 +12,8 @@ know who, what, when, where, why, and how. We want it in a SQL database.
 GatherNews allows you to specify which News sites you want to capture by
 providing the RSS link in "feeds_list.txt" like this:
 
+.. code-block:: pycon
+		
     http://feeds.reuters.com/Reuters/worldNews
     http://rss.cnn.com/rss/money_latest.rss
 
