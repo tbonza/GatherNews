@@ -28,7 +28,7 @@ You can then gather the news using these methods:
     >>> # Remove duplicate entries
     >>> capture_feeds.rm_duplicates()
 
-The examples folder contains working code integrating each module.
+The examples folder contains working code for each module.
 
 Features
 --------
