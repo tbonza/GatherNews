@@ -24,7 +24,7 @@ print(__doc__)
 from gathernews.capture import CaptureFeeds
 
 # File path to where "feeds_list.txt" is located
-file_path = "/home/tyler/GatherNews/examples/"
+file_path = "/home/tyler/code/GatherNews/examples/"
 # Instantiate the class
 capture_feeds = CaptureFeeds(file_path)
 
