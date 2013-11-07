@@ -8,15 +8,12 @@ class CaptureFeeds:
     
     Additional documentation
     """
-    def __init__(self):
-        path = '/home/tyler/code/locomotion/examples/'
-        rss_path = path + 'feeds_list.txt'
-        self.RSS_link_list = rss_path
+    def __init__(self, path):
+        self.RSS_link_list = path + "feeds_list.txt"
         # Initialize sqlite3
-        sql_path = path + "FeedMe.db"
-        self.conn = sqlite3.connect(sql_path)
+        self.conn = sqlite3.connect("FeedMe.db")
         self.c = self.conn.cursor()
-
+        
     def get_RSS_link(self):
         '''RSS links used to pull feeds'''
         f = open(self.RSS_link_list, 'r').readlines()
@@ -35,12 +32,16 @@ class CaptureFeeds:
                         for t_name in range(len(list_tables))]
         return revised_list
 
-    def do_tables_exist(self):
+    def do_tables_exist(self): # Error here
         """ Checks to see if new tables should be created
+
+
+        # This was failing silently so I took it's unplugged and here
+        # to reference
 
         """
         RSS_links = self.get_RSS_link()
-        Table_Names = self.get_tablenames()
+        Table_Names = self.get_tablenames() # This looks like it's failing
         if len(RSS_links) == len(Table_Names):
             return True
         elif len(RSS_links) > len(Table_Names):
@@ -59,29 +60,28 @@ class CaptureFeeds:
         into a separate table because it's easier
         to aggregate then deaggregate.
         """
-        if self.do_tables_exist() == True:
-            print "No new tables to create"
-        else:
-            for RSS_link in self.do_tables_exist():
-                if len(RSS_link) != 1:
-                    # Make table name match RSS feed name
-                    d = feedparser.parse(RSS_link)
-                    table_name = re.sub(r'\W+', '', d.feed.title)
-                    # Creating string separately makes multiple table 
-                    # creation easier
-                    table = "CREATE TABLE " +  table_name + \
-                            "( primary_key text, title text," + \
-                            " description text, link text, published text)" 
-                    # Create table in sqlite3
-                    self.c.execute(table)
-                    # Which tables are being entered?
-                    print "\t" + table_name 
-                elif len(RSS_link) == 1:
-                    # Save (commit) the changes
-                    self.conn.commit()
-                    # Close the connection to sqlite3
-                    print "\n", len(self.do_tables_exist()), " new tables" \
-                        + " have been created"
+        for RSS_link in self.get_RSS_link():
+            if len(RSS_link) != 1:
+                # Make table name match RSS feed name
+                d = feedparser.parse(RSS_link)
+                table_name = re.sub(r'\W+', '', d.feed.title)
+                # Creating string separately makes multiple table 
+                # creation easier
+                table = "CREATE TABLE " +  table_name + \
+                        "( primary_key text, title text," + \
+                        " description text, link text, published text)" 
+                # Create table in sqlite3
+                self.c.execute(table)
+                # Which tables are being entered?
+                print "\t" + table_name 
+            elif len(RSS_link) == 1:
+                # Save (commit) the changes
+                self.conn.commit()
+                # Close the connection to sqlite3
+
+                # This part is failing
+               # print "\n", len(self.do_tables_exist()), " new tables" \
+                #    + " have been created"
 
     def insert_query(self):
         '''

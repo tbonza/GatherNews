@@ -23,8 +23,10 @@ print(__doc__)
 # Import RSS feed capture class
 from gathernews.capture import CaptureFeeds
 
+# File path to where "feeds_list.txt" is located
+file_path = "/home/tyler/GatherNews/examples/"
 # Instantiate the class
-capture_feeds = CaptureFeeds()
+capture_feeds = CaptureFeeds(file_path)
 
 # Create new tables if any new RSS feed addresses have been added
 print " Checking for new tables"
