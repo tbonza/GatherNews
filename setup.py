@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-descr = 'Structures and stores News data'
+descr = "Gathers unstructured News data into a SQLite3 db"
 
 from distutils.core import setup
 
