@@ -6,11 +6,11 @@ from distutils.core import setup
 
 setup(
     name='GatherNews',
-    version='0.1.0',
+    version='0.1.1',
     maintainer='Tyler Brown',
     maintainer_email='tylers.pile@gmail.com',
     packages=['gathernews', 'gathernews.tests'],
-    scripts=['examples/capture_example.py'],
+    scripts=['examples/ex_gRSS.py'],
     url='http://pypi.python.org/pypi/GatherNews/',
     license='doc/LICENSE.txt',
     description= descr,
