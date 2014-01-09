@@ -11,8 +11,8 @@ class CaptureFeeds:
     def __init__(self, path):
         self.RSS_link_list = path + "feeds_list.txt"
         # Initialize sqlite3
-        self.conn = sqlite3.connect(path + "FeedMe.db")
-        self.c = self.conn.cursor()
+        conn = sqlite3.connect(path + "FeedMe.db")
+        self.c = conn.cursor()
         
     def get_RSS_link(self):
         '''RSS links used to pull feeds'''
