@@ -52,7 +52,6 @@ class CaptureFeeds:
         else:
             raise TypeError("Table overload")
                
-
     def create_tables(self):
         """ Creates tables for RSS news feeds
 
@@ -83,16 +82,6 @@ class CaptureFeeds:
                # print "\n", len(self.do_tables_exist()), " new tables" \
                 #    + " have been created"
 
-    def insert_query(self):
-        '''
-        Create a list of queries to run that
-        include the name of each table 
-        '''
-        insert_queries = {table_name: "INSERT INTO " + table_name + \
-                          " VALUES (?,?,?,?,?)" 
-                          for table_name in self.get_tablenames()}
-        return insert_queries
-
     def strip_garbage(self, description):
         '''
         Article descriptions were returning some garbage
@@ -101,6 +90,9 @@ class CaptureFeeds:
         rest = description.split(sep, 1)[0]
         sep = '<img'
         rest = rest.split(sep, 1)[0]
+
+        except(UnicodeEncodeError):
+                description = description_junk
         return rest
 
     def articles(self, number):
@@ -126,16 +118,68 @@ class CaptureFeeds:
             new_list.append((primary_key,title,description,link,published))
         return new_list
 
-    def table(self):
-        '''
-        This should be a dictionary of tables where each table
-        consists of a list of tuples. 
-        '''
-        table_dict = { self.get_tablenames()[number]: \
-                       self.articles(number) \
-                       for number in \
-                       range(len(self.get_tablenames()))}
-        return table_dict
+    def match_names(self, query_name, db_name):
+        """ Match SQL database table names to table names used for insert
+        query """
+        if :
+            return True
+        else:
+            return False
+
+    def articles(self):
+        """ Same thing as above but returns a string """
+        table_names = self.get_tablenames()
+        links = self.get_RSS_link()
+        transaction_query = "BEGIN "
+        for each_link in links:
+            the_articles = feedparser.parse(each_link)
+            # make sure link matches tablename
+            for article in enumerate(the_articles.entries):
+                number, entry = article
+                ## Use simpleflake for the primary key
+                primary_key = str(simpleflake())
+                ## Remaining columns are from feedparser
+                # title
+                title = entry.entries[number].title_detail.value
+                # summary/description
+                description = self.strip_garbage(entry.entries[number].\
+                                                 summary_detail.value)
+                # link
+                article_link = entry.entries[number].links.[0].href
+                # published
+                published = entry[number].published
+
+                ## Create transaction query for SQL database
+                # check table names
+                insert_query_table_name = re.sub(r'\W+', '', entry.feed.\
+                                                 title)
+                if self.match_names(insert_query_table_name, db_name)\
+                   == True:
+                    transaction_query = transaction_query + "INSERT INTO "\
+                                        + insert_quer_table_name + \
+                                        " VALUES(" + primary_key + "," +\
+                                        title + "," + description + "," +\
+                                        article_link + "," + published +\
+                                        "; "
+                else:
+                    raise UserWarning("Something bad happened")
+        
+        transaction_query = transaction_query + " COMMIT;"
+        return transaction_query
+
+
+
+        
+        
+        
+        
+            
+    def populate_db(self):
+        # create a .sql script more or less
+        # so we're going to create a string with each statement separated
+        # by a semicolon. The string starts with BEGIN and ends with COMMIT
+        # execute the script with BEGIN...COMMIT
+        
 
     def populate_db(self):
         ''' 
@@ -146,9 +190,14 @@ class CaptureFeeds:
         '''
         # Insert queries across multiple tables
         for table_name in self.table().keys():
+            self.c.execute("BEGIN; "\
+                           
+
+                           "COMMIT;")
+
+            
             self.c.executemany(self.insert_query()[table_name],\
                           self.table()[table_name])
-            self.conn.commit()
         print "\n populate_db is complete"
 
     def rm_duplicates(self):
