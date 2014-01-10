@@ -3,6 +3,14 @@ import sqlite3
 from simpleflake import * 
 import re
 
+### WOW so this needs some improvements.
+# Holy shit fix the doc strings
+# several bugs have been documented, fix those
+# for the love of god write more tests
+# fix the scope of the database open/closing
+  # remove self.c, conn from __init__
+  # make this local to create_tables(), & populate_and_rm_duplicates()
+
 class CaptureFeeds:
     """ Commits RSS news feeds to a SQLite3 database
     
@@ -40,17 +48,9 @@ class CaptureFeeds:
         # to reference
 
         """
-        RSS_links = self.get_RSS_link()
-        Table_Names = self.get_tablenames() # This looks like it's failing
-        if len(RSS_links) == len(Table_Names):
-            return True
-        elif len(RSS_links) > len(Table_Names):
-            new_table = len(Table_Names) - len(RSS_links)
-            new_table_list = [new_table_list.append(table) for table \
-                              in xrange(new_table)]
-            return new_table_list
-        else:
-            raise TypeError("Table overload")
+        ## why not change this to a simple lookup in  a list
+        ## for example, something like this might work:
+        
                
     def create_tables(self):
         """ Creates tables for RSS news feeds
@@ -59,6 +59,12 @@ class CaptureFeeds:
         into a separate table because it's easier
         to aggregate then deaggregate.
         """
+        # Open and close database within this method
+        
+        #### Don't pull from get_RSS_link here. Make the table names in a
+        #### separate function, check those table names against existing 
+        #### table names in the database and then create a query for names
+        #### which are not in the database. 
         for RSS_link in self.get_RSS_link():
             if len(RSS_link) != 1:
                 # Make table name match RSS feed name
@@ -86,6 +92,8 @@ class CaptureFeeds:
         '''
         Article descriptions were returning some garbage
         '''
+        # should include some if/else statements and check to see if the
+        # length of the string is changing 
         sep = '<div'
         rest = description.split(sep, 1)[0]
         sep = '<img'
@@ -95,40 +103,21 @@ class CaptureFeeds:
                 description = description_junk
         return rest
 
-    def articles(self, number):
-        '''
-        This should give me a list of tuples containing
-        information on the articles for a given RSS feed
-        '''
-        links = self.get_RSS_link()
-        d = feedparser.parse(links[number])
-        new_list = []
-        for article in range(len(d)):
-            # Hack simpleflake for sqlite3
-            primary_key = str(simpleflake()) 
-            # Remaining columns are iterated from feed parse
-            title = d.entries[article].title
-            try:
-                description_junk = str(d.entries[article].description)
-                description = self.strip_garbage(description_junk)
-            except(UnicodeEncodeError):
-                description = description_junk
-            link = d.entries[article].link
-            published = d.entries[article].published
-            new_list.append((primary_key,title,description,link,published))
-        return new_list
-
-    def match_names(self, query_name, db_name):
+    def match_names(self, query_name):
         """ Match SQL database table names to table names used for insert
         query """
-        if :
+        table_names = self.get_tablenames()
+        if query_name in table_names:
             return True
         else:
             return False
 
-    def articles(self):
+    def transaction_query(self):
         """ Same thing as above but returns a string """
-        table_names = self.get_tablenames()
+        # create a .sql script more or less
+        # so we're going to create a string with each statement separated
+        # by a semicolon. The string starts with BEGIN and ends with COMMIT
+        # execute the script with BEGIN...COMMIT
         links = self.get_RSS_link()
         transaction_query = "BEGIN "
         for each_link in links:
@@ -150,11 +139,10 @@ class CaptureFeeds:
                 published = entry[number].published
 
                 ## Create transaction query for SQL database
-                # check table names
                 insert_query_table_name = re.sub(r'\W+', '', entry.feed.\
                                                  title)
-                if self.match_names(insert_query_table_name, db_name)\
-                   == True:
+                # Insert table_name must be in database already
+                if self.match_names(insert_query_table_name) == True:
                     transaction_query = transaction_query + "INSERT INTO "\
                                         + insert_quer_table_name + \
                                         " VALUES(" + primary_key + "," +\
@@ -163,23 +151,10 @@ class CaptureFeeds:
                                         "; "
                 else:
                     raise UserWarning("Something bad happened")
-        
+        # complete concatenation of transaction query after all articles
+        # have been added for all links
         transaction_query = transaction_query + " COMMIT;"
         return transaction_query
-
-
-
-        
-        
-        
-        
-            
-    def populate_db(self):
-        # create a .sql script more or less
-        # so we're going to create a string with each statement separated
-        # by a semicolon. The string starts with BEGIN and ends with COMMIT
-        # execute the script with BEGIN...COMMIT
-        
 
     def populate_db(self):
         ''' 
@@ -188,17 +163,8 @@ class CaptureFeeds:
         the table names as a reference point. This allows rows to be 
         populated for each table leading to the population of the db.
         '''
-        # Insert queries across multiple tables
-        for table_name in self.table().keys():
-            self.c.execute("BEGIN; "\
-                           
-
-                           "COMMIT;")
-
-            
-            self.c.executemany(self.insert_query()[table_name],\
-                          self.table()[table_name])
-        print "\n populate_db is complete"
+        self.c.execute(self.transaction_query())
+        print("\n populate_db is complete")
 
     def rm_duplicates(self):
         '''
@@ -217,5 +183,11 @@ class CaptureFeeds:
             self.conn.commit()
         self.conn.close()
         print " rm_duplicates is complete"
+
+    def populate_and_rm_duplicates(self):
+        # open and close database within this method
+        pass
+
+
 
 
