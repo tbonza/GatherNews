@@ -33,14 +33,8 @@ class TestgRSS:
         """
         pass
 
-    def create_tables_bug(self):
-        """ Can we raise an error if we try to add an additional table? """
-        
-
-    
-        
-
-
-    
+    def test_additional_table_creation(self):
+        """ Make sure additional tables can be added """
+        pass
 
 
