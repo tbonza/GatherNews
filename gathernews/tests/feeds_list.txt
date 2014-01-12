@@ -1,0 +1,10 @@
+http://feeds.reuters.com/reuters/businessNews
+http://feeds.reuters.com/reuters/entertainment
+http://feeds.reuters.com/reuters/topNews
+http://feeds.reuters.com/Reuters/worldNews
+http://rss.cnn.com/rss/money_latest.rss
+http://rss.cnn.com/rss/cnn_showbiz.rss
+http://rss.cnn.com/rss/cnn_topstories.rss
+http://rss.cnn.com/rss/cnn_world.rss
+
+     

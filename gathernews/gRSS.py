@@ -19,20 +19,35 @@ class CaptureFeeds:
     Additional documentation
     """
     def __init__(self, path):
-        self.RSS_link_list = path + "feeds_list.txt"
+        self.path = path
+        self.RSS_link_list = self.path + "feeds_list.txt"
+        
         # Initialize sqlite3
         conn = sqlite3.connect(path + "FeedMe.db")
         c = conn.cursor()
-        
+
+    def read_file(self, path, your_file_name):
+        f = your_file.split("\n")
+        pattern = re.compile("[http]+")
+        clean_file = []
+        if len(f) == 0:
+            raise UserWarning("Could not find a recognize file")
+        # Make sure only rss feeds are returned
+        for link in f:
+            if pattern.search(link):
+                clean_file.append(link)
+        return clean_file
+                
     def get_RSS_link(self):
         '''RSS links used to pull feeds'''
         f = open(self.RSS_link_list, 'r').readlines()
-        return f[0:len(f)-1] #Removes last \n to match len(cleaned_list)
+        links =  f[:len(f)-1] #Removes last \n to match len(cleaned_list)
+        return links
 
-    def get_tablenames(self, path):
+    def get_tablenames(self):
         ''' Table names are cleaned for SQL queries'''
         # Init db locally 
-        conn = sqlite3.connect(path + "FeedMe.db")
+        conn = sqlite3.connect(self.path + "FeedMe.db")
         c = conn.cursor()
         # List of tables to query
         c.execute("SELECT name FROM sqlite_master WHERE type='table';")
@@ -54,13 +69,32 @@ class CaptureFeeds:
         # to reference
 
         """
-        ## why not change this to a simple lookup in  a list
-        ## for example, something like this might work:
-        # Make table name match RSS feed name
-        d = feedparser.parse(RSS_link)
-        table_name = re.sub(r'\W+', '', d.feed.title)
+        previous_feeds_list = [elt for elt in
+                               open(self.path + "gathernews/" +\
+                                    "previous_feeds_list.txt", "r")]
+        current_feeds_list = self.get_RSS_link()
+        create_these_tables = []
+        for RSS_link in current_feeds_list:
+            if RSS_link not in previous_feeds_list and len(RSS_link) > 1:
+                d = feedparser.parse(RSS_link)
+                table_name = re.sub(r'\W+', '', d.feed.title)
+                create_these_tables.append(table_name)
+            elif RSS_link in previous_feeds_list:
+                pass
+            else:
+                raise UserWarning("Blank entry found, can't make table_name")
+
+        # update previous_feeds_list with info from current_feeds_list
+        if len(create_these_tables) > 0:
+            previous_feeds_list = current_feeds_list
+            f = open(self.path + "gathernews/" +\
+                     "previous_feeds_list.txt", 'w')
+            for item in previous_feeds_list:
+                f.write("%s" % item)
+            f.close()
+            
+        return create_these_tables
         
-               
     def create_tables(self):
         """ Creates tables for RSS news feeds
 
@@ -68,28 +102,29 @@ class CaptureFeeds:
         into a separate table because it's easier
         to aggregate then deaggregate.
         """
-        # Open database locally
-        conn = sqlite3.connect(path + "FeedMe.db")
-        c = conn.cursor()
-        #### Don't pull from get_RSS_link here. Make the table names in a
-        #### separate function, check those table names against existing 
-        #### table names in the database and then create a query for names
-        #### which are not in the database.
-        transaction_query = "BEGIN "
-        for table_name in self.do_tables_exist():
-            table = "CREATE TABLE " +  table_name + \
-                    "( primary_key text, title text," + \
-                    " description text, link text, published text); "
-            create_query = create_query + table
-            # Which tables are being entered?
-            print "\t" + table_name
-            
-        transaction_query = create_query + " COMMIT;" 
-        # Create table in sqlite3
-        c.execute(transaction_query)
-        # Commit changes & close sqlite3 db
-        conn.commit()
-        conn.close()
+        if len(self.do_tables_exist()) > 0:
+            # Open database locally
+            conn = sqlite3.connect(self.path + "FeedMe.db")
+            c = conn.cursor()
+            transaction_query = "BEGIN "
+            for table_name in self.do_tables_exist():
+                table = "CREATE TABLE " +  table_name + \
+                        "( primary_key text, title text," + \
+                        " description text, link text, published text); "
+                create_query = create_query + table
+                # Which tables are being entered?
+                print "\t" + table_name
+                
+            transaction_query = create_query + " COMMIT;" 
+            # Create table in sqlite3
+            c.execute(transaction_query)
+            # Commit changes & close sqlite3 db
+            conn.commit()
+            conn.close()
+        elif len(self.do_tables_exist()) == 0:
+            print("No new tables need to be created\n")
+        else:
+            raise UserWarning("do_tables_exist() not returning a value")
 
     def strip_garbage(self, description):
         '''
