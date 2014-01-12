@@ -27,6 +27,7 @@ class CaptureFeeds:
         c = conn.cursor()
 
     def read_file(self, path, your_file_name):
+        your_file = open(path + your_file_name, 'r').read()
         f = your_file.split("\n")
         pattern = re.compile("[http]+")
         clean_file = []
