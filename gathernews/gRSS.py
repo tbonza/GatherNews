@@ -7,6 +7,8 @@ import re
 # Holy shit fix the doc strings
 # several bugs have been documented, fix those
 # for the love of god write more tests
+
+## Step 1
 # fix the scope of the database open/closing
   # remove self.c, conn from __init__
   # make this local to create_tables(), & populate_and_rm_duplicates()
@@ -20,27 +22,31 @@ class CaptureFeeds:
         self.RSS_link_list = path + "feeds_list.txt"
         # Initialize sqlite3
         conn = sqlite3.connect(path + "FeedMe.db")
-        self.c = conn.cursor()
+        c = conn.cursor()
         
     def get_RSS_link(self):
         '''RSS links used to pull feeds'''
         f = open(self.RSS_link_list, 'r').readlines()
         return f[0:len(f)-1] #Removes last \n to match len(cleaned_list)
 
-    def get_tablenames(self):
+    def get_tablenames(self, path):
         ''' Table names are cleaned for SQL queries'''
+        # Init db locally 
+        conn = sqlite3.connect(path + "FeedMe.db")
+        c = conn.cursor()
         # List of tables to query
-        self.c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        c.execute("SELECT name FROM sqlite_master WHERE type='table';")
         # List of tables names that can be queried
-        list_tables = self.c.fetchall()
+        list_tables = c.fetchall()
         # Create a revised list for insert query
         revised_list = \
                        [str(list_tables[t_name]).strip('(')\
                         .strip(')').strip(',').strip('u').strip("'") 
                         for t_name in range(len(list_tables))]
+        conn.close() # close sqlite3 db
         return revised_list
 
-    def do_tables_exist(self): # Error here
+    def do_tables_exist(self): 
         """ Checks to see if new tables should be created
 
 
@@ -50,6 +56,9 @@ class CaptureFeeds:
         """
         ## why not change this to a simple lookup in  a list
         ## for example, something like this might work:
+        # Make table name match RSS feed name
+        d = feedparser.parse(RSS_link)
+        table_name = re.sub(r'\W+', '', d.feed.title)
         
                
     def create_tables(self):
@@ -59,49 +68,46 @@ class CaptureFeeds:
         into a separate table because it's easier
         to aggregate then deaggregate.
         """
-        # Open and close database within this method
-        
+        # Open database locally
+        conn = sqlite3.connect(path + "FeedMe.db")
+        c = conn.cursor()
         #### Don't pull from get_RSS_link here. Make the table names in a
         #### separate function, check those table names against existing 
         #### table names in the database and then create a query for names
-        #### which are not in the database. 
-        for RSS_link in self.get_RSS_link():
-            if len(RSS_link) != 1:
-                # Make table name match RSS feed name
-                d = feedparser.parse(RSS_link)
-                table_name = re.sub(r'\W+', '', d.feed.title)
-                # Creating string separately makes multiple table 
-                # creation easier
-                table = "CREATE TABLE " +  table_name + \
-                        "( primary_key text, title text," + \
-                        " description text, link text, published text)" 
-                # Create table in sqlite3
-                self.c.execute(table)
-                # Which tables are being entered?
-                print "\t" + table_name 
-            elif len(RSS_link) == 1:
-                # Save (commit) the changes
-                self.conn.commit()
-                # Close the connection to sqlite3
-
-                # This part is failing
-               # print "\n", len(self.do_tables_exist()), " new tables" \
-                #    + " have been created"
+        #### which are not in the database.
+        transaction_query = "BEGIN "
+        for table_name in self.do_tables_exist():
+            table = "CREATE TABLE " +  table_name + \
+                    "( primary_key text, title text," + \
+                    " description text, link text, published text); "
+            create_query = create_query + table
+            # Which tables are being entered?
+            print "\t" + table_name
+            
+        transaction_query = create_query + " COMMIT;" 
+        # Create table in sqlite3
+        c.execute(transaction_query)
+        # Commit changes & close sqlite3 db
+        conn.commit()
+        conn.close()
 
     def strip_garbage(self, description):
         '''
         Article descriptions were returning some garbage
         '''
         # should include some if/else statements and check to see if the
-        # length of the string is changing 
+        # length of the string is changing
+        desc_length = len(description)
         sep = '<div'
-        rest = description.split(sep, 1)[0]
-        sep = '<img'
-        rest = rest.split(sep, 1)[0]
-
-        except(UnicodeEncodeError):
-                description = description_junk
-        return rest
+        stripped = description.split(sep, 1)[0]
+        if stripped < desc_length:
+            return stripped
+        elif stripped == desc_lenth:
+            sep = '<img'
+            stripped = description.split(sep, 1)[0]
+            return stripped
+        else:
+            return description
 
     def match_names(self, query_name):
         """ Match SQL database table names to table names used for insert
@@ -134,7 +140,7 @@ class CaptureFeeds:
                 description = self.strip_garbage(entry.entries[number].\
                                                  summary_detail.value)
                 # link
-                article_link = entry.entries[number].links.[0].href
+                article_link = entry.entries[number].links[0].href
                 # published
                 published = entry[number].published
 
@@ -152,7 +158,7 @@ class CaptureFeeds:
                 else:
                     raise UserWarning("Something bad happened")
         # complete concatenation of transaction query after all articles
-        # have been added for all links
+        # have been added for all links by ending statement with 'COMMIT;'
         transaction_query = transaction_query + " COMMIT;"
         return transaction_query
 
@@ -181,7 +187,7 @@ class CaptureFeeds:
                     " GROUP BY title, published);"
             self.c.execute(query)
             self.conn.commit()
-        self.conn.close()
+        conn.close()
         print " rm_duplicates is complete"
 
     def populate_and_rm_duplicates(self):

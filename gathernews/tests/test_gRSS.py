@@ -27,6 +27,10 @@ class TestgRSS:
         """ Can we find and load the text file for the RSS links?"""
         assert len(self.capture_feeds.get_RSS_link()) > 0
 
+    def test_get_tablenames(self):
+        """ Can the table names be retrieved from the sqlite3 db? """
+        assert len(self.capture_feeds.get_tablenames(self.path)) > 0
+
     def test_do_tables_exist(self):
         """ Can we capture True, False, Error, conditions for
         do_tables_exist?
@@ -35,6 +39,10 @@ class TestgRSS:
 
     def test_additional_table_creation(self):
         """ Make sure additional tables can be added """
+        pass
+
+    def test_strip_garbage(self):
+        """ Strip mock garbage successfully """
         pass
 
 
