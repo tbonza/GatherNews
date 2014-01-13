@@ -21,10 +21,6 @@ class CaptureFeeds:
     def __init__(self, path):
         self.path = path
         self.RSS_link_list = self.path + "feeds_list.txt"
-        
-        # Initialize sqlite3
-        conn = sqlite3.connect(path + "FeedMe.db")
-        c = conn.cursor()
 
     def read_file(self, path, your_file_name):
         your_file = open(path + your_file_name, 'r').read()
@@ -32,7 +28,7 @@ class CaptureFeeds:
         pattern = re.compile("[http]+")
         clean_file = []
         if len(f) == 0:
-            raise UserWarning("Could not find a recognize file")
+            raise UserWarning("Could not recognize the file")
         # Make sure only rss feeds are returned
         for link in f:
             if pattern.search(link):
@@ -41,9 +37,8 @@ class CaptureFeeds:
                 
     def get_RSS_link(self):
         '''RSS links used to pull feeds'''
-        f = open(self.RSS_link_list, 'r').readlines()
-        links =  f[:len(f)-1] #Removes last \n to match len(cleaned_list)
-        return links
+        f = self.read_file(self.path, "feeds_list.txt")
+        return f
 
     def get_tablenames(self):
         ''' Table names are cleaned for SQL queries'''
@@ -55,8 +50,7 @@ class CaptureFeeds:
         # List of tables names that can be queried
         list_tables = c.fetchall()
         # Create a revised list for insert query
-        revised_list = \
-                       [str(list_tables[t_name]).strip('(')\
+        revised_list = [str(list_tables[t_name]).strip('(')\
                         .strip(')').strip(',').strip('u').strip("'") 
                         for t_name in range(len(list_tables))]
         conn.close() # close sqlite3 db
@@ -106,21 +100,21 @@ class CaptureFeeds:
         if len(self.do_tables_exist()) > 0:
             # Open database locally
             conn = sqlite3.connect(self.path + "FeedMe.db")
+            conn.isolation_level = None
             c = conn.cursor()
-            transaction_query = "BEGIN "
+            transaction_query = "BEGIN; "
             for table_name in self.do_tables_exist():
                 table = "CREATE TABLE " +  table_name + \
                         "( primary_key text, title text," + \
                         " description text, link text, published text); "
-                create_query = create_query + table
+                transaction_query = transaction_query + table
                 # Which tables are being entered?
                 print "\t" + table_name
                 
-            transaction_query = create_query + " COMMIT;" 
+            transaction_query = transaction_query + " COMMIT;" 
             # Create table in sqlite3
-            c.execute(transaction_query)
-            # Commit changes & close sqlite3 db
-            conn.commit()
+            c.executescript(transaction_query)
+            # close sqlite3 db
             conn.close()
         elif len(self.do_tables_exist()) == 0:
             print("No new tables need to be created\n")
@@ -205,7 +199,7 @@ class CaptureFeeds:
         the table names as a reference point. This allows rows to be 
         populated for each table leading to the population of the db.
         '''
-        self.c.execute(self.transaction_query())
+        self.c.executescript(self.transaction_query())
         print("\n populate_db is complete")
 
     def rm_duplicates(self):
