@@ -27,20 +27,18 @@ class TestgRSS:
         """ Can we find and load the text file for the RSS links?"""
         assert len(self.capture_feeds.get_RSS_link()) > 0
 
-    def test_newline_character_get_rss_link(self):
-        """ Does rss_link include a newline character? It shouldn't """
+    def test_read_file(self):
+        # set parameters to test data
+        path = "/home/tyler/code/GatherNews/gathernews/tests/"
+        your_file_name = "feeds_list.txt"
+        # make sure the 8 rss links were returned
+        assert_true(len(self.capture_feeds.read_file(path, your_file_name))\
+            == 8)
         
-
     def test_get_tablenames(self):
         """ Can the table names be retrieved from the sqlite3 db? """
         assert len(self.capture_feeds.get_tablenames()) > 0
-
-    def test_do_tables_exist(self):
-        """ Can we capture True, False, Error, conditions for
-        do_tables_exist?
-        """
-        assert len(self.capture_feeds.do_tables_exist()) == 0
-
+        
     def test_strip_garbage(self):
         """ Strip mock garbage successfully """
         pass
