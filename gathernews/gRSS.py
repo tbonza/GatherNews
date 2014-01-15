@@ -8,21 +8,35 @@ import re
 # several bugs have been documented, fix those
 # for the love of god write more tests
 
-## Step 1
-# fix the scope of the database open/closing
-  # remove self.c, conn from __init__
-  # make this local to create_tables(), & populate_and_rm_duplicates()
+## Point of departure
+  # Bugs still remain, damnit!
+  # Run tests specific to read_file() and go from there
+
 
 class CaptureFeeds:
-    """ Commits RSS news feeds to a SQLite3 database
-    
-    Additional documentation
-    """
+    """ Commits RSS news feeds to a SQLite3 database  """
     def __init__(self, path):
         self.path = path
         self.RSS_link_list = self.path + "feeds_list.txt"
 
     def read_file(self, path, your_file_name):
+        """ Reads in file so that only rss links are included
+
+        Unfortunately, .readlines() or .read() alone were sucking in extra
+        '\n' symbols not related to the RSS links. This approach uses regular
+        expressions to only list items that are consistent with an RSS feed
+        link. 
+
+        Args:
+            path: the file path. Ex. "\home\tyler\Gathernews\gathernews\"
+            your_file_name: name of file you want to read
+
+        Returns:
+            List of strings where each string is a link to an RSS feed
+
+        Raises:
+            UserWarning: "Could not recognize the file"
+        """
         your_file = open(path + your_file_name, 'r').read()
         f = your_file.split("\n")
         pattern = re.compile("[http]+")
