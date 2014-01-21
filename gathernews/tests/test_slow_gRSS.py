@@ -9,7 +9,7 @@ class TestSlowgRSS:
     def setUp(self):
         assert not self.cls_initialized
         self.cls_initialized = True
-        self.path = "/home/tyler/code/GatherNews/"
+        self.path = "/home/tyler/code/GatherNews/gathernews/tests/"
         self.capture_feeds = CaptureFeeds(self.path)
 
     def tearDown(self):

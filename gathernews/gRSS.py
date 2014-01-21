@@ -2,16 +2,7 @@ import feedparser
 import sqlite3
 from simpleflake import * 
 import re
-
-### WOW so this needs some improvements.
-# Holy shit fix the doc strings
-# several bugs have been documented, fix those
-# for the love of god write more tests
-
-## Point of departure
-  # Bugs still remain, damnit!
-  # Run tests specific to read_file() and go from there
-
+import json
 
 class CaptureFeeds:
     """ Commits RSS news feeds to a SQLite3 database  """
@@ -70,24 +61,76 @@ class CaptureFeeds:
         conn.close() # close sqlite3 db
         return revised_list
 
+    def does_json_exist(self, path, file_name):
+        """ If a json object exists then return it
+
+        Args:
+            path: This is the file path.
+            file_name: This is the name of your file.
+
+        Returns:
+            A json object from your hard drive.
+        """
+        try:
+            json_object = json.load(path + file_name)
+            return json_object
+        except:
+            return False
+                
+    def make_table_names(self, RSS_link, create_these_tables):
+        """ Make the table names for the sqlite3 database.
+
+        Args:
+            RSS_link: RSS_link from 'feeds_list.txt'
+            create_these_tables: A list of table names to be created.
+
+        Returns:
+            The 'create_these_tables' list is returned with a table name
+            appended to it.
+        """
+        # Parse the RSS link with the feedparser library.
+        d = feedparser.parse(RSS_link)
+
+        # Use regular expressions to create a table name for the sqlite3 db.
+        table_name = re.sub(r'\W+', '', d.feed.title)
+
+        # Append the new table name to the 'create_these_tables' list
+        create_these_tables.append(table_name)
+        return create_these_tables
+
     def do_tables_exist(self): 
         """ Checks to see if new tables should be created
 
+        Args:
+            None
 
-        # This was failing silently so it's unplugged and here
-        # to reference
+        Returns:
+            A list of table names for tables that have not been created.
 
         """
-        previous_feeds_list = [elt for elt in
-                               open(self.path + "gathernews/" +\
-                                    "previous_feeds_list.txt", "r")]
+        # Load the json object from the file if it exists. 
+        previous_feeds_list = does_json_exist(self.path,
+                                              "previous_feeds_list.json")
+        # If previous_feeds_list is empty then start a new list.
+        if previous_feeds_list == False:
+            previous_feeds_list = []
+        
+        # Load the RSS links from 'feeds_list.txt'.
         current_feeds_list = self.get_RSS_link()
+
+        
+            
         create_these_tables = []
         for RSS_link in current_feeds_list:
-            if RSS_link not in previous_feeds_list and len(RSS_link) > 1:
-                d = feedparser.parse(RSS_link)
-                table_name = re.sub(r'\W+', '', d.feed.title)
-                create_these_tables.append(table_name)
+            # If there is nothing in previous_feeds_list then append names.
+            if previous_feeds_list == False and len(RSS_link) > 1:
+                self.make_table_names(RSS_link, create_these_tables)
+
+            # If previous_feeds_list is not empty check RSS links against
+            # previously used RSS links
+            elif RSS_link not in previous_feeds_list and len(RSS_link) > 1:
+                self.make_table_names(RSS_link, create_these_tables)
+                
             elif RSS_link in previous_feeds_list:
                 pass
             else:
@@ -95,6 +138,8 @@ class CaptureFeeds:
 
         # update previous_feeds_list with info from current_feeds_list
         if len(create_these_tables) > 0:
+
+            # there's got to be an easier way to do this
             previous_feeds_list = current_feeds_list
             f = open(self.path + "gathernews/" +\
                      "previous_feeds_list.txt", 'w')

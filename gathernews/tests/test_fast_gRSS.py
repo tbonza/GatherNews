@@ -22,10 +22,6 @@ class TestFastgRSS:
         """ Does the sqlite3 database connect properly? """
         assert_raises(Exception, sqlite3.connect(self.path + "FeedMe.db"))
 
-    def test_get_RSS_link(self):
-        """ Can we find and load the text file for the RSS links?"""
-        assert len(self.capture_feeds.get_RSS_link()) > 0
-
     def test_read_file(self):
         # set parameters to test data
         path = "/home/tyler/code/GatherNews/gathernews/tests/"
@@ -33,6 +29,10 @@ class TestFastgRSS:
         # make sure the 8 rss links were returned
         assert_true(len(self.capture_feeds.read_file(path, your_file_name))\
             == 8)
+
+    def test_get_RSS_link(self):
+        """ Can we find and load the text file for the RSS links?"""
+        assert len(self.capture_feeds.get_RSS_link()) > 0
         
     def test_get_tablenames(self):
         """ Can the table names be retrieved from the sqlite3 db? """
