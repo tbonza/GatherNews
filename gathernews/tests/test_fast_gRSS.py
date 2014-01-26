@@ -33,7 +33,10 @@ class TestFastgRSS:
     def test_get_RSS_link(self):
         """ Can we find and load the text file for the RSS links?"""
         assert len(self.capture_feeds.get_RSS_link()) > 0
-        
+
+    # This is about the point where the tests stop reflecting changes which
+    # have been made to gRSS.py
+    
     def test_get_tablenames(self):
         """ Can the table names be retrieved from the sqlite3 db? """
         assert len(self.capture_feeds.get_tablenames()) > 0
