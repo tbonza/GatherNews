@@ -162,17 +162,11 @@ class CaptureFeeds:
 
             # this does not current write a JSON object to disk.
             # that needs to happen.
-            previous_feeds_list = current_feeds_list
-            f = open(self.path + "gathernews/" +\
-                     "previous_feeds_list.txt", 'w')
-            for item in previous_feeds_list:
-                f.write("%s" % item)
-            f.close()
-            ##
-            ##
-            ##
-            ## Next time you look at this code, this method is your point
-            ## of departure. 
+            previous_feeds_list += create_these_tables
+            
+            json.dump(self.path + previous_feeds_list)
+            ### check out dive into python saved under Python IO favorites
+            
 
                 
 
