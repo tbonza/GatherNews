@@ -125,7 +125,20 @@ class TestNewTableCreation:
         self.cls_initialized = False
 
     # actual tests
-    
+
+    def test_make_table_names(self):
+        """ Parse an RSS link and create a table name """
+        # Set parameters
+        RSS_link = "http://feeds.reuters.com/Reuters/worldNews"
+        create_these_tables = []
+        # Run test
+        assert_true(self.capture_feeds.make_table_names(RSS_link,
+                                                        create_these_tables)\
+                    [0] == "ReutersWorldNews")
+
+
+    def test_create_these_tables(self):
+        pass
 
 
 class TestPopulateExistingTables:
