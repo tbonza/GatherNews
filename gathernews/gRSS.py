@@ -1,30 +1,61 @@
-timport feedparser
+# gRSS.py
+""" Library that let's you commit RSS feeds to a SQLite3 database
+
+The library is designed to make it very easy for Python programmers to
+load their selected RSS feeds into a SQLite3 database. This library arose
+out of a need to create custom datasets that can be used for text analytics.
+
+LICENSE: This is open-source software released under the terms of the
+GPL (http://www.gnu.org/licenses/gpl.html).
+
+PLATFORMS: This should run on any platform where the dependencies are
+available.
+
+OVERVIEW: There are is one method in this library that should load your
+sqlite3 database; load_db(). This method checks to see if you need new
+tables created, creates those tables if necessary, populates your existing
+tables, and then removes any duplicate entries in those tables.
+
+----------------------------------------------------------------------------
+from gathernews.gRSS import CaptureFeeds
+
+path = "/home/tyler/code/"
+capture_feeds = CaptureFeeds(path)
+
+capture_feeds.load_db()
+----------------------------------------------------------------------------
+
+The sqlite3 database is loaded using the following schema:
+    CREATE TABLE ReutersWorldNews( primary_key text, title text,
+    description text,link text, published text);
+
+Each table is assigned a unique table name that's taken from the name of the
+designated RSS feed. 
+
+DOCUMENTATION: For complete documentation, http://pythonhosted.org/GatherNews
+"""
+
+import feedparser
 import sqlite3
 from simpleflake import * 
 import re
 import json
 
-# TODO:
-#    Finish resolving create_tables() bug
-#    Turn rm_duplicates() into a transaction query
-#    Finish writing more complete tests
-#    Update examples/
-#    Update benchmarks/, It would be good to compare last release to now
-#    Put some work into documenting this package
 
-class FileIO(object):
-    """ Includes any methods that are responsible for File IO but are not
-    related to database IO """
 
-    
+class CaptureFeeds(object):
+    """ Commits RSS news feeds to a SQLite3 database  """
+
+
     def __init__(self, path):
-        self.path = path
         # Path corresponds to feeds_list.txt. 
         self.RSS_link_list = path + "feeds_list.txt"
         # Path corresponds to previous_feeds_list.json. 
         self.previous_path = "~/Gathernews/gathernews/"
 
-        
+############################################################################
+# Check to see if you need new tables created.
+
     def read_file(self, path, your_file_name):
         """ Reads in file so that only rss links are included
 
@@ -55,7 +86,7 @@ class FileIO(object):
                 clean_file.append(link)
         return clean_file
 
-        
+
     def does_json_exist(self, file_name):
         """ If a json object exists then return it
 
@@ -73,7 +104,7 @@ class FileIO(object):
         except:
             return False
 
-            
+
     def update_feeds_json(self, create_these_tables, previous_feeds_list,
                           current_feeds_list):
         """ A JSON object of table_names in the database is updated.
@@ -102,11 +133,6 @@ class FileIO(object):
             return False
 
 
-
-class SQLite3IO(object):
-    """ Includes any methods that are responsible for SQLite3 database IO """
-    
-
     def get_tablenames(self):
         """ All table names are extracted for use in SQL queries.
 
@@ -127,53 +153,14 @@ class SQLite3IO(object):
         conn.close() # close sqlite3 db
         return revised_list
 
-
-    def create_tables(self):
-        """ Creates tables for RSS news feeds
-
-        Sets up db tables where each RSS link feeds
-        into a separate table because it's easier
-        to aggregate then deaggregate.
-        """
-        if len(self.do_tables_exist()) > 0:
-            # Open database locally
-            conn = sqlite3.connect(self.path + "FeedMe.db")
-            conn.isolation_level = None
-            c = conn.cursor()
-            transaction_query = "BEGIN; "
-            for table_name in self.do_tables_exist():
-                table = "CREATE TABLE " +  table_name + \
-                        "( primary_key text, title text," + \
-                        " description text, link text, published text); "
-                transaction_query = transaction_query + table
-                # Which tables are being entered?
-                print "\t" + table_name
-                
-            transaction_query = transaction_query + " COMMIT;" 
-            # Create table in sqlite3
-            c.executescript(transaction_query)
-            # close sqlite3 db
-            conn.close()
-        elif len(self.do_tables_exist()) == 0:
-            print("No new tables need to be created\n")
-        else:
-            raise UserWarning("do_tables_exist() not returning a value")
-
-
-    def populate_and_rm_duplicates(self):
-        # open and close database within this method
-        pass
-
-            
-class CaptureFeeds(FileIO, SQLite3IO):
-    """ Commits RSS news feeds to a SQLite3 database  """
-
-    
+        
     def get_RSS_link(self):
         """RSS links used to pull feeds"""
         return self.read_file(self.path + "feeds_list.txt")
 
-        
+############################################################################
+# Create those new tables if it is necessary.
+
     def make_table_names(self, RSS_link, create_these_tables):
         """ Make the table names for the sqlite3 database.
 
@@ -195,7 +182,7 @@ class CaptureFeeds(FileIO, SQLite3IO):
         create_these_tables.append(table_name)
         return create_these_tables
 
-        
+
     def create_these_tables(self, current_feeds_list, previous_feeds_list):
         """ Table names for new tables are generated.
 
@@ -255,6 +242,41 @@ class CaptureFeeds(FileIO, SQLite3IO):
         self.update_feeds_json()
             
         return create_these_tables
+
+        
+    def create_tables(self):
+        """ Creates tables for RSS news feeds
+
+        Sets up db tables where each RSS link feeds
+        into a separate table because it's easier
+        to aggregate then deaggregate.
+        """
+        if len(self.do_tables_exist()) > 0:
+            # Open database locally
+            conn = sqlite3.connect(self.path + "FeedMe.db")
+            conn.isolation_level = None
+            c = conn.cursor()
+            transaction_query = "BEGIN; "
+            for table_name in self.do_tables_exist():
+                table = "CREATE TABLE " +  table_name + \
+                        "( primary_key text, title text," + \
+                        " description text, link text, published text); "
+                transaction_query = transaction_query + table
+                # Which tables are being entered?
+                print "\t" + table_name
+                
+            transaction_query = transaction_query + " COMMIT;" 
+            # Create table in sqlite3
+            c.executescript(transaction_query)
+            # close sqlite3 db
+            conn.close()
+        elif len(self.do_tables_exist()) == 0:
+            print("No new tables need to be created\n")
+        else:
+            raise UserWarning("do_tables_exist() not returning a value")
+
+#############################################################################
+# Populate your existing tables with your selected RSS feeds.
             
     def strip_garbage(self, description):
         '''
@@ -326,8 +348,9 @@ class CaptureFeeds(FileIO, SQLite3IO):
         # complete concatenation of transaction query after all articles
         # have been added for all links by ending statement with 'COMMIT;'
         transaction_query = transaction_query + " COMMIT;"
-        return transaction_query            
-        
+        return transaction_query
+
+
     def populate_db(self):
         ''' 
         Queries are matched with dict keys which then
@@ -338,7 +361,10 @@ class CaptureFeeds(FileIO, SQLite3IO):
         self.c.executescript(self.transaction_query())
         print("\n populate_db is complete")
 
-        
+
+#############################################################################
+# Remove any duplicate entries in these tables.
+
     def rm_duplicates(self):
         '''
         Limitation of this duplicate removal approach is that only one
@@ -358,11 +384,22 @@ class CaptureFeeds(FileIO, SQLite3IO):
         conn.close()
         print " rm_duplicates is complete"
 
+############################################################################
+# Put everything together in load_db().
+
+    def load_db(self):
+        """ Loads the sqlite3 database """
+        ## Check to see if you need new tables created.
+        #self.do_tables_exist()
         
+        ## Create those new tables if it is necessary.
+        self.create_tables()
+        
+        ## Populate your existing tables with your selected RSS feeds.
+        self.populate_db()
+        
+        ## Remove any duplicate entries in these tables. 
+        self.rm_duplicates()
+       
     
-
-
-
-
-
-
+    
