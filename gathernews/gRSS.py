@@ -11,10 +11,10 @@ GPL (http://www.gnu.org/licenses/gpl.html).
 PLATFORMS: This should run on any platform where the dependencies are
 available.
 
-OVERVIEW: There are is one method in this library that should load your
-sqlite3 database; load_db(). This method checks to see if you need new
-tables created, creates those tables if necessary, populates your existing
-tables, and then removes any duplicate entries in those tables.
+OVERVIEW: There is one method in this library that should load your sqlite3
+database; load_db(). This method checks to see if you need new tables
+created, creates those tables if necessary, populates your existing tables,
+and then removes any duplicate entries in those tables.
 
 ----------------------------------------------------------------------------
 from gathernews.gRSS import CaptureFeeds
@@ -42,12 +42,12 @@ import re
 import json
 
 
-
 class CaptureFeeds(object):
     """ Commits RSS news feeds to a SQLite3 database  """
 
 
     def __init__(self, path):
+        self.path = path
         # Path corresponds to feeds_list.txt. 
         self.RSS_link_list = path + "feeds_list.txt"
         # Path corresponds to previous_feeds_list.json. 
@@ -87,29 +87,12 @@ class CaptureFeeds(object):
         return clean_file
 
 
-    def does_json_exist(self, file_name):
-        """ If a json object exists then return it
-
-        Args:
-            file_name: This is the name of your file.
-
-        Returns:
-            A json object from your specified path is returned.
-        """
-        try:
-            with open(self.previous_path + file_name, 'r') as f:
-                return json.load(f)
-        # At some point you should create a method that checks to see if the
-        # file path given by the user is accurate. 
-        except:
-            return False
-
-
-    def update_feeds_json(self, create_these_tables, previous_feeds_list,
-                          current_feeds_list):
+    def update_feeds_json(self, path, create_these_tables,
+                          previous_feeds_list, current_feeds_list):
         """ A JSON object of table_names in the database is updated.
 
         Args:
+            path: The filepath to the JSON object to be updated
             create_these_tables: A list of table names that will be entered
                                  into the database. 
             previous_feeds_list: A list of RSS feed links corresponding to
@@ -125,11 +108,30 @@ class CaptureFeeds(object):
             previous_feeds_list = create_these_tables
             # The list is written as a JSON object to your disk.
 
-            # there should be a bug here hold on
-            with open(self.previous_path + 'previous_feeds_list.json',
+            # there will be a bug here if you don't resolve the file
+            # path issue where feeds_lists.txt wants something different
+            with open(path + 'previous_feeds_list.json',
                       mode = 'w') as f:
                return json.dump(previous_feeds_list, f)
         else:
+            return False
+
+
+    def does_json_exist(self, path, your_file_name):
+        """ If a json object exists then return it
+
+        Args:
+            file_name: This is the name of your file.
+
+        Returns:
+            A json object from your specified path is returned.
+        """
+        try:
+            with open(path + file_name, 'r') as f:
+                return json.load(f)
+        # At some point you should create a method that checks to see if the
+        # file path given by the user is accurate. 
+        except:
             return False
 
 
