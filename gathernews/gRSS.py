@@ -1,15 +1,30 @@
-import feedparser
+timport feedparser
 import sqlite3
 from simpleflake import * 
 import re
 import json
 
-class CaptureFeeds:
-    """ Commits RSS news feeds to a SQLite3 database  """
+# TODO:
+#    Finish resolving create_tables() bug
+#    Turn rm_duplicates() into a transaction query
+#    Finish writing more complete tests
+#    Update examples/
+#    Update benchmarks/, It would be good to compare last release to now
+#    Put some work into documenting this package
+
+class FileIO(object):
+    """ Includes any methods that are responsible for File IO but are not
+    related to database IO """
+
+    
     def __init__(self, path):
         self.path = path
-        self.RSS_link_list = self.path + "feeds_list.txt"
+        # Path corresponds to feeds_list.txt. 
+        self.RSS_link_list = path + "feeds_list.txt"
+        # Path corresponds to previous_feeds_list.json. 
+        self.previous_path = "~/Gathernews/gathernews/"
 
+        
     def read_file(self, path, your_file_name):
         """ Reads in file so that only rss links are included
 
@@ -39,19 +54,61 @@ class CaptureFeeds:
             if pattern.search(link):
                 clean_file.append(link)
         return clean_file
-                
-    def get_RSS_link(self):
-        """RSS links used to pull feeds"""
-        return self.read_file(self.path, "feeds_list.txt")
 
-    def get_tablenames(self):
-        """ All table names are extracted for use in SQL queries
-
-        Table names are extracted from the database and cleaned for SQL
-        queries.
+        
+    def does_json_exist(self, file_name):
+        """ If a json object exists then return it
 
         Args:
-            None
+            file_name: This is the name of your file.
+
+        Returns:
+            A json object from your specified path is returned.
+        """
+        try:
+            with open(self.previous_path + file_name, 'r') as f:
+                return json.load(f)
+        # At some point you should create a method that checks to see if the
+        # file path given by the user is accurate. 
+        except:
+            return False
+
+            
+    def update_feeds_json(self, create_these_tables, previous_feeds_list,
+                          current_feeds_list):
+        """ A JSON object of table_names in the database is updated.
+
+        Args:
+            create_these_tables: A list of table names that will be entered
+                                 into the database. 
+            previous_feeds_list: A list of RSS feed links corresponding to
+                                 table names that are in the database.
+            current_feeds_list: A list of RSS feed links that may correspond
+                                to table names that are not in the database.
+
+        Returns:
+            No items are returned. This method writes a JSON object to disk.
+        """
+        # update previous_feeds_list with info from current_feeds_list
+        if len(create_these_tables) > 0:
+            previous_feeds_list = create_these_tables
+            # The list is written as a JSON object to your disk.
+
+            # there should be a bug here hold on
+            with open(self.previous_path + 'previous_feeds_list.json',
+                      mode = 'w') as f:
+               return json.dump(previous_feeds_list, f)
+        else:
+            return False
+
+
+
+class SQLite3IO(object):
+    """ Includes any methods that are responsible for SQLite3 database IO """
+    
+
+    def get_tablenames(self):
+        """ All table names are extracted for use in SQL queries.
 
         Returns:
             revised_list: A list of all table names in the database is here.
@@ -70,134 +127,7 @@ class CaptureFeeds:
         conn.close() # close sqlite3 db
         return revised_list
 
-    def does_json_exist(self, path, file_name):
-        """ If a json object exists then return it
 
-        Args:
-            path: This is the file path.
-            file_name: This is the name of your file.
-
-        Returns:
-            A json object from your specified path is returned.
-        """
-        try:
-            return json.load(path + file_name)
-        # At some point you should create a method that checks to see if the
-        # file path given by the user is accurate. 
-        except:
-            return False
-                
-    def make_table_names(self, RSS_link, create_these_tables):
-        """ Make the table names for the sqlite3 database.
-
-        Args:
-            RSS_link: RSS_link from 'feeds_list.txt'
-            create_these_tables: A list of table names to be created.
-
-        Returns:
-            The 'create_these_tables' list is returned with a table name
-            appended to it.
-        """
-        # Parse the RSS link with the feedparser library.
-        d = feedparser.parse(RSS_link)
-
-        # Use regular expressions to create a table name for the sqlite3 db.
-        table_name = re.sub(r'\W+', '', d.feed.title)
-
-        # Append the new table name to the 'create_these_tables' list
-        create_these_tables.append(table_name)
-        return create_these_tables
-
-    def create_these_tables(self, current_feeds_list, previous_feeds_list):
-        """ Table names for new tables are generated.
-
-        Args:
-            current_feeds_list: List of RSS_links inputted by the user.
-            previous_feeds_list: List of RSS_links generated by the program
-                                 to keep track of tables currently in the
-                                 database.
-        
-        Returns:
-            A list of table names for tables that do not currently
-            exist in the databases are created.
-        
-        Raises:
-            UserWarning: Blank entry found, can't make table_name
-
-        """
-        create_these_tables = []
-        for RSS_link in current_feeds_list:
-            # If there is nothing in previous_feeds_list then append names.
-            if previous_feeds_list == False and len(RSS_link) > 1:
-                self.make_table_names(RSS_link, create_these_tables)
-
-            # If previous_feeds_list is not empty check RSS links against
-            # previously used RSS links
-            elif RSS_link not in previous_feeds_list and len(RSS_link) > 1:
-                self.make_table_names(RSS_link, create_these_tables)
-
-            # When an RSS link is passed that is < 1 then read_file() is
-            # working incorrectly and so a UserWarning is raised. 
-            else:
-                raise UserWarning("Blank entry found, can't make table_name")
-        return create_these_tables
-
-    def update_feeds_json(self, create_these_tables, previous_feeds_list,
-                          current_feeds_list):
-        """ A JSON object of table_names in the database is updated.
-
-        Args:
-            create_these_tables: A list of table names that will be entered
-                                 into the database. 
-            previous_feeds_list: A list of RSS feed links corresponding to
-                                 table names that are in the database.
-            current_feeds_list: A list of RSS feed links that may correspond
-                                to table names that are not in the database.
-
-        Returns:
-            No items are returned. This method writes a JSON object to disk.
-        """
-        # update previous_feeds_list with info from current_feeds_list
-        if len(create_these_tables) > 0:
-
-            # this does not current write a JSON object to disk.
-            # that needs to happen.
-            previous_feeds_list += create_these_tables
-            
-            json.dump(self.path + previous_feeds_list)
-            ### check out dive into python saved under Python IO favorites
-            
-
-                
-
-    def do_tables_exist(self): 
-        """ Checks to see if new tables should be created
-
-        Args:
-            None
-
-        Returns:
-            A list of table names for tables that have not been created.
-        """
-        # Load the json object from the file if it exists. 
-        previous_feeds_list = self.does_json_exist(self.path,
-                                              "previous_feeds_list.json")
-        # If previous_feeds_list is empty then start a new list.
-        if previous_feeds_list == False:
-            previous_feeds_list = []
-        
-        # Load the RSS links from 'feeds_list.txt'.
-        current_feeds_list = self.get_RSS_link()
-
-        ## create_these_tables() goes about here
-        create_these_tables = self.create_these_tables(current_feeds_list,
-                                                       previous_feeds_list)
-            
-        ## update backup list for tables
-        self.update_feeds_json()
-            
-        return create_these_tables
-        
     def create_tables(self):
         """ Creates tables for RSS news feeds
 
@@ -229,6 +159,103 @@ class CaptureFeeds:
         else:
             raise UserWarning("do_tables_exist() not returning a value")
 
+
+    def populate_and_rm_duplicates(self):
+        # open and close database within this method
+        pass
+
+            
+class CaptureFeeds(FileIO, SQLite3IO):
+    """ Commits RSS news feeds to a SQLite3 database  """
+
+    
+    def get_RSS_link(self):
+        """RSS links used to pull feeds"""
+        return self.read_file(self.path + "feeds_list.txt")
+
+        
+    def make_table_names(self, RSS_link, create_these_tables):
+        """ Make the table names for the sqlite3 database.
+
+        Args:
+            RSS_link: RSS_link from 'feeds_list.txt'
+            create_these_tables: A list of table names to be created.
+
+        Returns:
+            The 'create_these_tables' list is returned with a table name
+            appended to it.
+        """
+        # Parse the RSS link with the feedparser library.
+        d = feedparser.parse(RSS_link)
+
+        # Use regular expressions to create a table name for the sqlite3 db.
+        table_name = re.sub(r'\W+', '', d.feed.title)
+
+        # Append the new table name to the 'create_these_tables' list
+        create_these_tables.append(table_name)
+        return create_these_tables
+
+        
+    def create_these_tables(self, current_feeds_list, previous_feeds_list):
+        """ Table names for new tables are generated.
+
+        Args:
+            current_feeds_list: List of RSS_links inputted by the user.
+            previous_feeds_list: List of RSS_links generated by the program
+                                 to keep track of tables currently in the
+                                 database.
+        
+        Returns:
+            A list of table names for tables that do not currently
+            exist in the databases are created.
+        
+        Raises:
+            UserWarning: Blank entry found, can't make table_name
+
+        """
+        create_these_tables = []
+        for RSS_link in current_feeds_list:
+            # If there is nothing in previous_feeds_list then append names.
+            if previous_feeds_list == False and len(RSS_link) > 1:
+                self.make_table_names(RSS_link, create_these_tables)
+
+            # If previous_feeds_list is not empty check RSS links against
+            # previously used RSS links.
+            elif RSS_link not in previous_feeds_list and len(RSS_link) > 1:
+                self.make_table_names(RSS_link, create_these_tables)
+
+            # When an RSS link is passed that is < 1 then read_file() is
+            # working incorrectly and so a UserWarning is raised. 
+            else:
+                raise UserWarning("Blank entry found, can't make table_name")
+        return create_these_tables
+
+
+    def do_tables_exist(self): 
+        """ Checks to see if new tables should be created
+
+        Returns:
+            A list of table names for tables that have not been created.
+        """
+        # Load the json object from the file if it exists. 
+        previous_feeds_list = self.does_json_exist(self.path,
+                                              "previous_feeds_list.json")
+        # If previous_feeds_list is empty then start a new list.
+        if previous_feeds_list == False:
+            previous_feeds_list = []
+        
+        # Load the RSS links from 'feeds_list.txt'.
+        current_feeds_list = self.get_RSS_link()
+
+        ## create_these_tables() goes about here
+        create_these_tables = self.create_these_tables(current_feeds_list,
+                                                       previous_feeds_list)
+            
+        ## update backup list for tables
+        self.update_feeds_json()
+            
+        return create_these_tables
+            
     def strip_garbage(self, description):
         '''
         Article descriptions were returning some garbage
@@ -247,6 +274,7 @@ class CaptureFeeds:
         else:
             return description
 
+            
     def match_names(self, query_name):
         """ Match SQL database table names to table names used for insert
         query """
@@ -298,8 +326,8 @@ class CaptureFeeds:
         # complete concatenation of transaction query after all articles
         # have been added for all links by ending statement with 'COMMIT;'
         transaction_query = transaction_query + " COMMIT;"
-        return transaction_query
-
+        return transaction_query            
+        
     def populate_db(self):
         ''' 
         Queries are matched with dict keys which then
@@ -310,6 +338,7 @@ class CaptureFeeds:
         self.c.executescript(self.transaction_query())
         print("\n populate_db is complete")
 
+        
     def rm_duplicates(self):
         '''
         Limitation of this duplicate removal approach is that only one
@@ -317,6 +346,7 @@ class CaptureFeeds:
         primary_key). If the number of  duplicate entries per item  > 2
         then that will introduce a bug. 
         '''
+        # probably turn this into a transaction query
         # Remove duplicate queries
         for table_name in self.table().keys():
             query = "DELETE FROM " + table_name + " WHERE primary_key " \
@@ -328,9 +358,10 @@ class CaptureFeeds:
         conn.close()
         print " rm_duplicates is complete"
 
-    def populate_and_rm_duplicates(self):
-        # open and close database within this method
-        pass
+        
+    
+
+
 
 
 
