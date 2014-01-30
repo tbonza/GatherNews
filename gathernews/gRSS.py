@@ -1,8 +1,8 @@
 # gRSS.py
-""" Library that let's you commit RSS feeds to a SQLite3 database
+""" Module that lets you commit RSS feeds to a SQLite3 database
 
-The library is designed to make it very easy for Python programmers to
-load their selected RSS feeds into a SQLite3 database. This library arose
+The module is designed to make it very easy for Python programmers to
+load their selected RSS feeds into a SQLite3 database. This module arose
 out of a need to create custom datasets that can be used for text analytics.
 
 LICENSE: This is open-source software released under the terms of the
@@ -59,7 +59,7 @@ class CaptureFeeds(object):
     def read_file(self, path, your_file_name):
         """ Reads in file so that only rss links are included
 
-        Unfortunately, .readlines() or .read() alone were sucking in extra
+        Unfortunately, .readlines() or .read() alone was sucking in extra
         '\n' symbols not related to the RSS links. This approach uses regular
         expressions to only list items that are consistent with an RSS feed
         link. 
@@ -199,9 +199,16 @@ class CaptureFeeds(object):
             exist in the databases are created.
         
         Raises:
+            UserWarning: RSS links have not been added to 'feeds_list.txt'
             UserWarning: Blank entry found, can't make table_name
 
         """
+        # First, we need to know that the RSS links have been properly added.
+        if len(current_feeds_list) == 0:
+            raise UserWarning("RSS links have not been added to"\
+                              + " 'feeds_list.txt'")
+            
+        # Second, we can now generate a list of table names. 
         create_these_tables = []
         for RSS_link in current_feeds_list:
             # If there is nothing in previous_feeds_list then append names.
@@ -216,12 +223,15 @@ class CaptureFeeds(object):
             # When an RSS link is passed that is < 1 then read_file() is
             # working incorrectly and so a UserWarning is raised. 
             else:
-                raise UserWarning("Blank entry found, can't make table_name")
+                pass
         return create_these_tables
 
 
     def do_tables_exist(self): 
         """ Checks to see if new tables should be created
+
+        The real job of this is to probably set & reset
+        previous_feeds_list.json which we haven't done yet. 
 
         Returns:
             A list of table names for tables that have not been created.
