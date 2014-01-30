@@ -328,8 +328,11 @@ class CaptureFeeds(object):
 
             else if len(description) == desc_length:
                 description = pattern2.search(description).group(0)
+                if len(description) < desc_length:
+                    return description
 
             else:
+                pass
 
         else:
             return description
