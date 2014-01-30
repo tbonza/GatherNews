@@ -332,8 +332,15 @@ class CaptureFeeds(object):
                     return description
 
             else:
-                pass
-
+                if len(html_brackets.search(description).group(0)) > 0:
+                    logging.warning("HTML garbage not successfully removed"\
+                                    +"from the article description. Please"\
+                                    +"file a bug report using "\
+                                    +"'https://github.com/Bonza-Times/Gath"\
+                                    +"erNews/issues'")
+                else:
+                    pass
+                
         else:
             return description
 
@@ -359,10 +366,7 @@ class CaptureFeeds(object):
         else:
             return description
 
-            logging.warning("HTML garbage not successfully removed from the"\
-                        +" article description. Please file a bug report"\
-                        +" using 'https://github.com/Bonza-Times/GatherNe"\
-                        +"ws/issues'")
+            
 
             
     def match_names(self, query_name):
