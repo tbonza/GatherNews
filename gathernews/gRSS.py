@@ -344,30 +344,6 @@ class CaptureFeeds(object):
         else:
             return description
 
-        
-        # should include some if/else statements and check to see if the
-        # length of the string is changing
-        
-
-        
-        
-        #
-        
-        
-        pattern.search(description).group(0)
-        # how do we know if an entry is a good entry? 
-        stripped = description.split(
-        if stripped < desc_length:
-            return stripped
-        elif stripped == desc_length:
-            sep = '<img'
-            stripped = description.split(sep, 1)[0]
-            return stripped
-        else:
-            return description
-
-            
-
             
     def match_names(self, query_name):
         """ Match SQL database table names to table names used for insert
