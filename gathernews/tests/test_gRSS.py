@@ -32,13 +32,18 @@ class TestNewTablesCreated:
     # actual tests
 
     def test_read_file(self):
-        """ Make sure that only RSS links are read from feeds_list.txt"""
+        """ Make sure that only RSS links are read from feeds_list.txt
+
+        A list of bad RSS links have been placed in 'feeds_list.txt' so
+        we should expect nothing to be returned. 
+        """
         # set parameters to test data
         path = self.path
         your_file_name = "feeds_list.txt"
-        # make sure the 8 rss links were returned
-        assert_true(len(self.capture_feeds.read_file(path,
-                                                     your_file_name)) == 8)
+        # make sure that none of the bad RSS links were returned
+        assert_raises(UserWarning, self.capture_feeds.read_file, path,
+                      your_file_name)
+
 
     def test_update_feeds_json(self):
         """ Make sure you can create/update a JSON object in ~/tests """
@@ -138,8 +143,30 @@ class TestNewTableCreation:
 
 
     def test_create_these_tables(self):
-        pass
+        """ Make sure an error is raised if no RSS links have been added to
+        'feeds_list.txt' """
+        # Set parameters
+        current_feeds_list = []
+        previous_feeds_list = [] # empty list should never be returned here
+        # Run test
+        assert_raises(UserWarning, self.capture_feeds.create_these_tables,
+                      current_feeds_list, previous_feeds_list)
 
+
+    def test_do_tables_exist(self):
+        """ See if tables which should be created are not found when they
+        do not exist
+
+        The error should be raised here from read_file()
+        """
+        assert_raises(UserWarning, self.capture_feeds.do_tables_exist)
+
+    def test_create_tables(self):
+        """ See if Warning is raised when we don't know if tables should
+        be created or left alone """
+        assert_raises(UserWarning, self.capture_feeds.create_tables)
+
+        
 
 class TestPopulateExistingTables:
     """ Make sure existing tables can be successfully populated with new
@@ -162,6 +189,29 @@ class TestPopulateExistingTables:
 
     # actual tests
 
+    def test_strip_garbage(self):
+        """ Make sure the garbage is outta here! """
+        # Set parameters
+        description = u'Nicholas Lowinger, 15, has provided new shoes to '\
+        +'more than 10,000 homeless children since 2010.<div class="feedfla'\
+        +'re">\n<a href="http://rss.cnn.com/~ff/rss/cnn_world?a=sY9UQhCaa'\
+        +'Bs:D0GXstdA6xE:yIl2AUoC8zA"><img border="0" src="http://feeds.f'\
+        +'eedburner.com/~ff/rss/cnn_world?d=yIl2AUoC8zA" /></a> <a href="'\
+        +'http://rss.cnn.com/~ff/rss/cnn_world?a=sY9UQhCaaBs:D0GXstdA6xE:7'\
+        +'Q72WNTAKBA"><img border="0" src="http://feeds.feedburner.com/~ff/'\
+        +'rss/cnn_world?d=7Q72WNTAKBA" /></a> <a href="http://rss.cnn.com/~'\
+        +'ff/rss/cnn_world?a=sY9UQhCaaBs:D0GXstdA6xE:V_sGLiPBpWU"><img bord'\
+        +'er="0" src="http://feeds.feedburner.com/~ff/rss/cnn_world?i=sY9UQ'\
+        +'hCaaBs:D0GXstdA6xE:V_sGLiPBpWU" /></a> <a href="http://rss.cnn.co'\
+        +'m/~ff/rss/cnn_world?a=sY9UQhCaaBs:D0GXstdA6xE:qj6IDK7rITs"><img b'\
+        +'order="0" src="http://feeds.feedburner.com/~ff/rss/cnn_world?d=qj'\
+        +'6IDK7rITs" /></a> <a href="http://rss.cnn.com/~ff/rss/cnn_world?a'\
+        +'=sY9UQhCaaBs:D0GXstdA6xE:gIN9vFwOqvQ"><img border="0" src="http:/'\
+        +'/feeds.feedburner.com/~ff/rss/cnn_world?i=sY9UQhCaaBs:D0GXstdA6xE'\
+        +':gIN9vFwOqvQ" /></a>\n</div><img height="1" src="http://feeds.fee'\
+        +'dburner.com/~r/rss/cnn_world/~4/sY9UQhCaaBs" width="1" />'
+        # Run test
+        assert 
 
 class TestDuplicateRemoval:
     """ Make sure duplicate entries can be successfully removed. """

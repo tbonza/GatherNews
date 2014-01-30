@@ -40,6 +40,7 @@ import sqlite3
 from simpleflake import * 
 import re
 import json
+import logging
 
 
 class CaptureFeeds(object):
@@ -51,7 +52,7 @@ class CaptureFeeds(object):
         # Path corresponds to feeds_list.txt. 
         self.RSS_link_list = path + "feeds_list.txt"
         # Path corresponds to previous_feeds_list.json. 
-        self.previous_path = "~/Gathernews/gathernews/"
+        self.previous_path = path
 
 ############################################################################
 # Check to see if you need new tables created.
@@ -76,14 +77,14 @@ class CaptureFeeds(object):
         """
         your_file = open(path + your_file_name, 'r').read()
         f = your_file.split("\n")
-        pattern = re.compile("[http]+")
+        pattern = re.compile("^[http]+")
         clean_file = []
-        if len(f) == 0:
-            raise UserWarning("Could not recognize the file")
         # Make sure only rss feeds are returned
         for link in f:
             if pattern.search(link):
                 clean_file.append(link)
+        if len(clean_file) == 0:
+            raise UserWarning("Could not recognize the file")
         return clean_file
 
 
@@ -158,7 +159,7 @@ class CaptureFeeds(object):
         
     def get_RSS_link(self):
         """RSS links used to pull feeds"""
-        return self.read_file(self.path + "feeds_list.txt")
+        return self.read_file(self.path, "feeds_list.txt")
 
 ############################################################################
 # Create those new tables if it is necessary.
@@ -251,9 +252,13 @@ class CaptureFeeds(object):
                                                        previous_feeds_list)
             
         ## update backup list for tables
-        self.update_feeds_json()
-            
-        return create_these_tables
+        if create_these_tables >= 1:
+            # Update running list of tables in the database
+            self.update_feeds_json(self.previous_path, create_these_tables,
+                                   previous_feeds_list, current_feeds_list)
+            return create_these_tables
+        else:
+            return False # False, no new tables will be created
 
         
     def create_tables(self):
@@ -291,22 +296,70 @@ class CaptureFeeds(object):
 # Populate your existing tables with your selected RSS feeds.
             
     def strip_garbage(self, description):
-        '''
-        Article descriptions were returning some garbage
-        '''
+        """ Remove HTML garbage from the description
+
+        Args:
+            description: An article's description from the RSS Feed
+        
+        Returns:
+            A string that does not include HTML garbage
+
+        Raises:
+            Warning: Logged when HTML garbage is not successfully removed.
+        """
+        # Check to see if HTML code is included in the description
+        html_brackets = re.compile("[<].*[>]")
+        if len(html_brackets.search(description).group(0)) > 0:
+            
+            # Use known patterns to solve the description bug
+            pattern1 = re.compile("^.*?(?=<div)")
+            pattern2 = re.compile("^.*?(?=<img)")
+
+            # Take the length of the description to see if we are
+            # resolving the bug
+            desc_length = len(description)
+
+            # When the desc_length is reduced then we assume the bug
+            # is resolved
+            description = pattern1.search(description).group(0)
+
+            if len(description) < desc_length:
+                return description
+
+            else if len(description) == desc_length:
+                description = pattern2.search(description).group(0)
+
+            else:
+
+        else:
+            return description
+
+        
         # should include some if/else statements and check to see if the
         # length of the string is changing
-        desc_length = len(description)
-        sep = '<div'
-        stripped = description.split(sep, 1)[0]
+        
+
+        
+        
+        #
+        
+        
+        pattern.search(description).group(0)
+        # how do we know if an entry is a good entry? 
+        stripped = description.split(
         if stripped < desc_length:
             return stripped
-        elif stripped == desc_lenth:
+        elif stripped == desc_length:
             sep = '<img'
             stripped = description.split(sep, 1)[0]
             return stripped
         else:
             return description
+
+            logging.warning("HTML garbage not successfully removed from the"\
+                        +" article description. Please file a bug report"\
+                        +" using 'https://github.com/Bonza-Times/GatherNe"\
+                        +"ws/issues'")
 
             
     def match_names(self, query_name):
