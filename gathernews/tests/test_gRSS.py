@@ -210,8 +210,19 @@ class TestPopulateExistingTables:
         +'/feeds.feedburner.com/~ff/rss/cnn_world?i=sY9UQhCaaBs:D0GXstdA6xE'\
         +':gIN9vFwOqvQ" /></a>\n</div><img height="1" src="http://feeds.fee'\
         +'dburner.com/~r/rss/cnn_world/~4/sY9UQhCaaBs" width="1" />'
+
         # Run test
-        assert 
+        cleaned = self.capture_feeds.strip_garbage(description)
+        assert_true(len(cleaned) == 95)
+
+
+    def test_strip_garbage2(self):
+        """ Here we're concerned with successfully handling a 'NoneType'
+        object that's returned when a regular expression does not find a
+        value"""
+        # Set parameters
+
+        
 
 class TestDuplicateRemoval:
     """ Make sure duplicate entries can be successfully removed. """
