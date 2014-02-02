@@ -162,7 +162,7 @@ class CaptureFeeds(object):
         return self.read_file(self.path, "feeds_list.txt")
 
 ############################################################################
-# Create those new tables if it is necessary.
+# Create the new tables if it is necessary.
 
     def make_table_names(self, RSS_link, create_these_tables):
         """ Make the table names for the sqlite3 database.
@@ -294,6 +294,22 @@ class CaptureFeeds(object):
 
 #############################################################################
 # Populate your existing tables with your selected RSS feeds.
+
+    def regex_match(self, regex):
+        """ Return the regular expression match if it exists
+
+        Args:
+            regex: Includes the regular expression pattern and the phrase
+                   to be checked.
+
+        Returns:
+            False if no match is found; otherwise, the first group is
+            returned because we expect no more than one group in this
+            module. 
+        """
+        if regex is None:
+            return False
+        return regex.group(0)
             
     def strip_garbage(self, description):
         """ Remove HTML garbage from the description
@@ -309,7 +325,7 @@ class CaptureFeeds(object):
         """
         # Check to see if HTML code is included in the description
         html_brackets = re.compile("[<].*[>]")
-        if len(html_brackets.search(description).group(0)) > 0:
+        if self.regex_match(html_brackets.search(description)) != False:
             
             # Use known patterns to solve the description bug
             pattern1 = re.compile("^.*?(?=<div)")
@@ -321,14 +337,14 @@ class CaptureFeeds(object):
 
             # When the desc_length is reduced then we assume the bug
             # is resolved
-            description = pattern1.search(description).group(0)
+            description = self.regex_match(pattern1.search(description))
 
-            if len(description) < desc_length:
+            if description != False:
                 return description
 
-            elif len(description) == desc_length:
-                description = pattern2.search(description).group(0)
-                if len(description) < desc_length:
+            elif description == False:
+                description = self.regex_match(pattern2.search(description))
+                if description != False:
                     return description
 
             else:

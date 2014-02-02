@@ -221,7 +221,11 @@ class TestPopulateExistingTables:
         object that's returned when a regular expression does not find a
         value"""
         # Set parameters
+        description = "The lazy brown foxy jumps over the foxy lady!"
 
+        # Run test
+        cleaned = self.capture_feeds.strip_garbage(description)
+        assert_true(len(cleaned) == 45)
         
 
 class TestDuplicateRemoval:
