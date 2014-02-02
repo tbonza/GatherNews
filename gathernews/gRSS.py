@@ -264,7 +264,7 @@ class CaptureFeeds(object):
     def create_tables(self):
         """ Creates tables for RSS news feeds
 
-        Sets up db tables where each RSS link feeds
+        Creates db tables where each RSS link feeds
         into a separate table because it's easier
         to aggregate then deaggregate.
         """
@@ -331,31 +331,22 @@ class CaptureFeeds(object):
             pattern1 = re.compile("^.*?(?=<div)")
             pattern2 = re.compile("^.*?(?=<img)")
 
-            # Take the length of the description to see if we are
-            # resolving the bug
-            desc_length = len(description)
+            # If known patterns are not able to resolve the description
+            # bug then a warning will be logged to the user's console
+            if self.regex_match(pattern1.search(description)) != False:
+                return self.regex_match(pattern1.search(description))
 
-            # When the desc_length is reduced then we assume the bug
-            # is resolved
-            description = self.regex_match(pattern1.search(description))
-
-            if description != False:
-                return description
-
-            elif description == False:
-                description = self.regex_match(pattern2.search(description))
-                if description != False:
-                    return description
-
+            elif self.regex_match(pattern2.search(description)) != False:
+                return self.regex_match(pattern2.search(description))
+                
             else:
-                if len(html_brackets.search(description).group(0)) > 0:
-                    logging.warning("HTML garbage not successfully removed"\
-                                    +"from the article description. Please"\
-                                    +"file a bug report using "\
-                                    +"'https://github.com/Bonza-Times/Gath"\
-                                    +"erNews/issues'")
-                else:
-                    pass
+                logging.warning("HTML garbage not successfully removed\n"\
+                                +" from the article description. Please\n"\
+                                +" file a bug report using \n"\
+                                +" 'https://github.com/Bonza-Times/Gath"\
+                                +"erNews/issues'\n with this message: ")
+                print description ## Not sure how to write a test for this
+                
                 
         else:
             return description

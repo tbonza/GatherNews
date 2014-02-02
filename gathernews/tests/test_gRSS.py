@@ -226,6 +226,18 @@ class TestPopulateExistingTables:
         # Run test
         cleaned = self.capture_feeds.strip_garbage(description)
         assert_true(len(cleaned) == 45)
+
+
+    def test_strip_garbage3(self):
+        """ We want to make sure a warning is logged to
+        the console if the HTML garbage bug is not squashed. """
+        
+        # Set parameters
+        import warnings
+        description = "<p>The lazy brown fox jumps over the foxy lady!</p>"
+
+        # Run test
+        ## point of departure!!
         
 
 class TestDuplicateRemoval:
