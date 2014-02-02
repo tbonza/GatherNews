@@ -360,7 +360,7 @@ class CaptureFeeds(object):
         else:
             return description
 
-            
+
     def match_names(self, query_name):
         """ Match SQL database table names to table names used for insert
         query """
@@ -369,7 +369,7 @@ class CaptureFeeds(object):
             return True
         else:
             return False
-
+#### Point of departure for next test #################!!!!!
     def transaction_query(self):
         """ Same thing as above but returns a string """
         # create a .sql script more or less
