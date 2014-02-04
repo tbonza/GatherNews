@@ -237,7 +237,11 @@ class TestPopulateExistingTables:
         description = "<p>The lazy brown fox jumps over the foxy lady!</p>"
 
         # Run test
-        ## point of departure!!
+        assert_true(self.capture_feeds.strip_garbage(description) == None)
+
+        # Note that a logged warning is of type 'None'. I think this is a
+        # good test because regex_match() returns 'False' if the regular
+        # expression search returns no result. I
         
 
 class TestDuplicateRemoval:
