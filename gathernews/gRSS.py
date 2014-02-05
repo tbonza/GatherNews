@@ -382,28 +382,27 @@ class CaptureFeeds(object):
         for each_link in links:
             the_articles = feedparser.parse(each_link)
             # make sure link matches tablename
-            for article in enumerate(the_articles.entries):
-                number, entry = article
+            for article in the_articles.entries:
                 ## Use simpleflake for the primary key
                 primary_key = str(simpleflake())
                 ## Remaining columns are from feedparser
                 # title
-                title = entry.entries[number].title_detail.value
+                title = article.title_detail.value
                 # summary/description
-                description = self.strip_garbage(entry.entries[number].\
-                                                 summary_detail.value)
+                description = self.strip_garbage(article.summary_detail.\
+                                                 value)
                 # link
-                article_link = entry.entries[number].links[0].href
+                article_link = article.links[0].href
                 # published
-                published = entry[number].published
+                published = article.published
 
                 ## Create transaction query for SQL database
-                insert_query_table_name = re.sub(r'\W+', '', entry.feed.\
-                                                 title)
+                insert_query_table_name = re.sub(r'\W+', '',\
+                                                 article.feed.title)
                 # Insert table_name must be in database already
                 if self.match_names(insert_query_table_name) == True:
                     transaction_query = transaction_query + "INSERT INTO "\
-                                        + insert_quer_table_name + \
+                                        + insert_query_table_name + \
                                         " VALUES(" + primary_key + "," +\
                                         title + "," + description + "," +\
                                         article_link + "," + published +\
