@@ -109,6 +109,22 @@ class TestNewTablesCreated2:
         assert_true(len(self.capture_feeds.get_tablenames()) > 1)
 
         
+    def test_match_names(self):
+        """ Make sure a SQL database table name can be matched to a table
+        name used in an insert query. """
+
+        # Set parameters
+        query_name = "ReutersWorldNews"
+
+        # Run test
+        assert_true(self.capture_feeds.match_names(query_name) == True)
+
+        # Note that this method is actually part of the
+        # PopulateExistingTables() test class. However, the file path
+        # used for testing is shared with the TestNewTablesCreated2()
+        # class so here we've arrived.
+
+        
         
 class TestNewTableCreation:
     """ Make sure you can create new tables after recieving new table
@@ -233,7 +249,6 @@ class TestPopulateExistingTables:
         the console if the HTML garbage bug is not squashed. """
         
         # Set parameters
-        import warnings
         description = "<p>The lazy brown fox jumps over the foxy lady!</p>"
 
         # Run test
@@ -241,9 +256,16 @@ class TestPopulateExistingTables:
 
         # Note that a logged warning is of type 'None'. I think this is a
         # good test because regex_match() returns 'False' if the regular
-        # expression search returns no result. I
-        
+        # expression search returns no result.
 
+
+    def test_transaction_query(self):
+        pass
+        ## Not sure what's going on with this one. Here's your point of
+        ## departure.
+
+    
+        
 class TestDuplicateRemoval:
     """ Make sure duplicate entries can be successfully removed. """
         

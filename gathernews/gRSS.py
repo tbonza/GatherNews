@@ -310,7 +310,8 @@ class CaptureFeeds(object):
         if regex is None:
             return False
         return regex.group(0)
-            
+
+        
     def strip_garbage(self, description):
         """ Remove HTML garbage from the description
 
@@ -345,8 +346,7 @@ class CaptureFeeds(object):
                                 +" file a bug report using \n"\
                                 +" 'https://github.com/Bonza-Times/Gath"\
                                 +"erNews/issues'\n with this message: ")
-                print description ## Not sure how to write a test for this
-                
+                print description 
                 
         else:
             return description
@@ -360,13 +360,23 @@ class CaptureFeeds(object):
             return True
         else:
             return False
-#### Point of departure for next test #################!!!!!
+
+            
     def transaction_query(self):
-        """ Same thing as above but returns a string """
-        # create a .sql script more or less
-        # so we're going to create a string with each statement separated
-        # by a semicolon. The string starts with BEGIN and ends with COMMIT
-        # execute the script with BEGIN...COMMIT
+        """ Transaction query that inserts data into the tables
+
+        Create a .sql script by creating a string with each statement
+        separated by a semicolon. The string starts with BEGIN and ends
+        with COMMIT.
+
+        Returns:
+            A string containing one INSERT INTO query for each new row
+            in each table. For example, Reuters World News may have 30
+            new articles so 30 INSERT INTO queries will be added to this
+            string for that table. The string includes all INSERT INTO
+            queries for all tables. The goal is to open/close the database
+            less to speed up the process.
+        """
         links = self.get_RSS_link()
         transaction_query = "BEGIN "
         for each_link in links:
