@@ -352,6 +352,12 @@ class CaptureFeeds(object):
             return description
 
 
+    def for_fucks_sake(self, description):
+        """ This is apparently a bug fix for the description issue """
+        fucking_hell = self.strip_garbage(description)
+        return self.strip_garbage(fucking_hell)
+
+
     def match_names(self, query_name):
         """ Match SQL database table names to table names used for insert
         query """
@@ -389,7 +395,7 @@ class CaptureFeeds(object):
                 # title
                 title = article.title_detail.value
                 # summary/description
-                description = self.strip_garbage(article.summary_detail.value)
+                description = self.for_fucks_sake(article.summary_detail.value)
                 # link
                 article_link = article.links[0].href
                 # published
@@ -399,14 +405,13 @@ class CaptureFeeds(object):
                 insert_query_table_name = re.sub(r'\W+', '',\
                                                  the_articles.feed.title)
                 # Insert table_name must be in database already
-                a = "'" # Apostrophe to be added
                 query_time = ["INSERT INTO ",
                               insert_query_table_name,
                               " VALUES(", primary_key, ",",
-                              a,title,a,",",
-                              a,description,a, ",",
-                              a, article_link,a,",",
-                              a,published,a,
+                              title,",",
+                              description,",",
+                              article_link,",",
+                              published,
                               "; "]
                 if self.match_names(insert_query_table_name) == True:
                     for item in query_time:
