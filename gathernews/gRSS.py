@@ -431,7 +431,13 @@ class CaptureFeeds(object):
         the table names as a reference point. This allows rows to be 
         populated for each table leading to the population of the db.
         '''
-        self.c.executescript(self.transaction_query())
+        # Set up connection
+        conn = sqlite3.connect(self.path + "FeedMe.db")
+        c = conn.cursor()
+        # Execute SQL script
+        c.executescript(self.transaction_query())
+        # close sqlite3 db
+        conn.close() 
         print("\n populate_db is complete")
 
 
