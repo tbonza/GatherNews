@@ -17,24 +17,25 @@ providing the RSS link in "feeds_list.txt" like this:
     http://feeds.reuters.com/Reuters/worldNews
     http://rss.cnn.com/rss/money_latest.rss
 
-You can then gather the news using these methods:
+You can then gather the news using the load_db() methods:
 
 .. code-block:: pycon
 		
     >>> # Create new tables if any new RSS feed addresses have been added
-    >>> capture_feeds.create_tables()
     >>> # Populate all tables with RSS news feeds
-    >>> capture_feeds.populate_db()
     >>> # Remove duplicate entries
-    >>> capture_feeds.rm_duplicates()
+    >>> capture_feeds.load_db()
 
 The examples folder contains working code for each module.
 
 Features
 --------
 
-- Parses RSS feeds and commits each news article to SQLite3 database
-- Works around URL Encode Errors
+- Creates tables with a predefined schema
+- Populates each table in the SQLite3 database with articles
+- Removes duplicate articles from each table
+- Includes bug fixes for issues raised about version 0.1.0
+- Faster than version 0.1.0, see the benchmarks!
 
 Installation
 ------------
@@ -48,7 +49,7 @@ To install GatherNews use pip:
 Documentation
 -------------
 
-Documentation is available at https://github.com/Bonza-Times/GatherNews/wiki
+Documentation is available at http://pythonhosted.org/GatherNews/
 
 Contribute
 ----------
