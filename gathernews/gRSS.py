@@ -106,7 +106,11 @@ class CaptureFeeds(object):
         """
         # update previous_feeds_list with info from current_feeds_list
         if len(create_these_tables) > 0:
-            previous_feeds_list = create_these_tables
+
+
+            # line 225 is crashing the ca
+            # issue needs to be resolved here == current_feeds_list
+            previous_feeds_list = current_feeds_list
             # The list is written as a JSON object to your disk.
 
             # there will be a bug here if you don't resolve the file
@@ -128,7 +132,7 @@ class CaptureFeeds(object):
             A json object from your specified path is returned.
         """
         try:
-            with open(path + file_name, 'r') as f:
+            with open(path + your_file_name, 'r') as f:
                 return json.load(f)
         # At some point you should create a method that checks to see if the
         # file path given by the user is accurate. 
@@ -164,6 +168,72 @@ class CaptureFeeds(object):
 ############################################################################
 # Create the new tables if it is necessary.
 
+    def fix_create_table_bug(self):
+        """ Fix the create table bug
+
+        In GatherNews 0.1.0, a bug was introduced that does not allow you
+        to add new RSS feeds to the 'feeds_list.txt' after your initial
+        call of the create_tables() method.
+
+        This method was created because we have no way of knowing which
+        RSS feed links match which RSS table names without making a call
+        to each RSS feed and recreating each table name.
+
+        If you have previously used GatherNews 0.1.0 you should call this
+        method once before calling any other methods on your previously
+        created 'FeedMe.db'. Once this method is called then the issue should
+        be resolved.
+
+        Returns:
+            Writes a JSON object to your disk called 'previous_feeds_list'
+            that will fix the create_table() bug.
+
+        Raises:
+            UserWarning: This bug fix is not needed
+        """
+        
+        # get table names from the database
+        db_names = self.get_tablenames()
+
+        # get table names from RSS feeds
+        create_these_tables = {}
+        for RSS_link in self.read_file(self.path, "feeds_list.txt"):
+            d = feedparser.parse(RSS_link)
+            table_name = re.sub(r'\W+', '', d.feed.title)
+            create_these_tables[table_name] = RSS_link
+
+        # see if the links associated with the table names are already here
+        path = self.path
+        file_name = 'previous_feeds_list.json'
+        with open(path + file_name, 'r') as f:
+            current_backup = json.load(f)
+
+        count = 0
+        backup_count = len(current_backup) 
+        for name in create_these_tables.keys():
+            if create_these_tables[name] in current_backup:
+                count += 1
+                
+        if count == backup_count:
+            # Warn the user that this bug fix is not needed
+            raise UserWarning("This bug fix is not needed")
+
+        else:
+                
+            # see which names match
+            correct_RSS_links = []
+            for table in db_names:
+                if table in create_these_tables:
+                    correct_RSS_links.append(create_these_tables[table])
+                elif table not in db_names:
+                    print table, " was not found in feeds_list.txt'"
+
+            # Write the JSON object to disk
+            with open(path + 'previous_feeds_list.json',
+                      mode = 'w') as f:
+                return json.dump(correct_RSS_links, f)
+
+                    
     def make_table_names(self, RSS_link, create_these_tables):
         """ Make the table names for the sqlite3 database.
 
@@ -208,24 +278,27 @@ class CaptureFeeds(object):
         if len(current_feeds_list) == 0:
             raise UserWarning("RSS links have not been added to"\
                               + " 'feeds_list.txt'")
-            
+
         # Second, we can now generate a list of table names. 
         create_these_tables = []
         for RSS_link in current_feeds_list:
             # If there is nothing in previous_feeds_list then append names.
-            if previous_feeds_list == False and len(RSS_link) > 1:
+            if previous_feeds_list == False:
                 self.make_table_names(RSS_link, create_these_tables)
 
             # If previous_feeds_list is not empty check RSS links against
             # previously used RSS links.
-            elif RSS_link not in previous_feeds_list and len(RSS_link) > 1:
+            elif RSS_link not in previous_feeds_list:
                 self.make_table_names(RSS_link, create_these_tables)
-
-            # When an RSS link is passed that is < 1 then read_file() is
-            # working incorrectly and so a UserWarning is raised. 
+            # When no new tables need to be added return False
             else:
                 pass
-        return create_these_tables
+
+        # create no tables if they aren't needed
+        if len(create_these_tables) == 0:
+            return False
+        else:
+            return create_these_tables
 
 
     def do_tables_exist(self): 
@@ -240,9 +313,6 @@ class CaptureFeeds(object):
         # Load the json object from the file if it exists. 
         previous_feeds_list = self.does_json_exist(self.path,
                                               "previous_feeds_list.json")
-        # If previous_feeds_list is empty then start a new list.
-        if previous_feeds_list == False:
-            previous_feeds_list = []
         
         # Load the RSS links from 'feeds_list.txt'.
         current_feeds_list = self.get_RSS_link()
@@ -252,7 +322,7 @@ class CaptureFeeds(object):
                                                        previous_feeds_list)
             
         ## update backup list for tables
-        if create_these_tables >= 1:
+        if create_these_tables != False:
             # Update running list of tables in the database
             self.update_feeds_json(self.previous_path, create_these_tables,
                                    previous_feeds_list, current_feeds_list)
@@ -268,7 +338,7 @@ class CaptureFeeds(object):
         into a separate table because it's easier
         to aggregate then deaggregate.
         """
-        if len(self.do_tables_exist()) > 0:
+        if self.do_tables_exist() != False:
             # Open database locally
             conn = sqlite3.connect(self.path + "FeedMe.db")
             conn.isolation_level = None
@@ -287,8 +357,8 @@ class CaptureFeeds(object):
             c.executescript(transaction_query)
             # close sqlite3 db
             conn.close()
-        elif len(self.do_tables_exist()) == 0:
-            print("No new tables need to be created\n")
+        elif self.do_tables_exist() == False:
+            print("\n\tNo new tables need to be created")
         else:
             raise UserWarning("do_tables_exist() not returning a value")
 
@@ -367,7 +437,7 @@ class CaptureFeeds(object):
         else:
             return False
 
-            
+
     def transaction_query(self):
         """ Transaction query that inserts data into the tables
 
@@ -383,11 +453,15 @@ class CaptureFeeds(object):
             queries for all tables. The goal is to open/close the database
             less to speed up the process.
         """
+
+        ## Data structure is a article graph
+        insert_this_data = {}
+
         links = self.get_RSS_link()
-        transaction_query = "BEGIN; "
+        # Begin transaction query
         for each_link in links:
+            data_hold = [] # place to put article info
             the_articles = feedparser.parse(each_link)
-            # make sure link matches tablename
             for article in the_articles.entries:
                 ## Use simpleflake for the primary key
                 primary_key = str(simpleflake())
@@ -395,34 +469,31 @@ class CaptureFeeds(object):
                 # title
                 title = article.title_detail.value
                 # summary/description
-                description = self.for_fucks_sake(article.summary_detail.value)
+                description = self.for_fucks_sake(article.\
+                                                  summary_detail.value)
                 # link
                 article_link = article.links[0].href
                 # published
                 published = article.published
 
-                ## Create transaction query for SQL database
-                insert_query_table_name = re.sub(r'\W+', '',\
-                                                 the_articles.feed.title)
-                # Insert table_name must be in database already
-                query_time = ["INSERT INTO ",
-                              insert_query_table_name,
-                              " VALUES(", primary_key, ",",
-                              title,",",
-                              description,",",
-                              article_link,",",
-                              published,
-                              "; "]
-                if self.match_names(insert_query_table_name) == True:
-                    for item in query_time:
-                        transaction_query += item
-                else:
-                    raise UserWarning("Something bad happened")
-        # complete concatenation of transaction query after all articles
-        # have been added for all links by ending statement with 'COMMIT;'
-        transaction_query = transaction_query + " COMMIT;"
-        return transaction_query
+                data_hold.append((primary_key, title, description,
+                                  article_link, published))
 
+            ## Create transaction query for SQL database
+            insert_query_table_name = re.sub(r'\W+', '',\
+                                             the_articles.feed.title)
+            if self.match_names(insert_query_table_name) == True:
+                insert_query = "INSERT INTO " + insert_query_table_name + \
+                               " VALUES(?,?,?,?,?);"
+                
+                # Populate data structure
+                insert_this_data[insert_query] = data_hold 
+                    
+            else:
+                raise UserWarning("Something bad happened")
+            
+        return insert_this_data
+                
 
     def populate_db(self):
         ''' 
@@ -435,10 +506,12 @@ class CaptureFeeds(object):
         conn = sqlite3.connect(self.path + "FeedMe.db")
         c = conn.cursor()
         # Execute SQL script
-        c.executescript(self.transaction_query())
+        data = self.transaction_query()
+        for table in data.keys():
+            c.executemany(table, data[table]) 
         # close sqlite3 db
         conn.close() 
-        print("\n populate_db is complete")
+        print("\tpopulate_db is complete")
 
 
 #############################################################################
@@ -451,17 +524,21 @@ class CaptureFeeds(object):
         primary_key). If the number of  duplicate entries per item  > 2
         then that will introduce a bug. 
         '''
-        # probably turn this into a transaction query
+        # Set up connection
+        conn = sqlite3.connect(self.path + "FeedMe.db")
+        c = conn.cursor()
         # Remove duplicate queries
-        for table_name in self.table().keys():
+        dup_script = "BEGIN TRANSACTION; "
+        for table_name in self.get_tablenames():
             query = "DELETE FROM " + table_name + " WHERE primary_key " \
                     "NOT IN " \
                     "(SELECT min(primary_key) FROM " + table_name + \
-                    " GROUP BY title, published);"
-            self.c.execute(query)
-            self.conn.commit()
+                    " GROUP BY title, published); "
+            dup_script = dup_script + query
+        dup_script = dup_script + "COMMIT TRANSACTION;"
+        c.executescript(dup_script)
         conn.close()
-        print " rm_duplicates is complete"
+        print("\trm_duplicates is complete")
 
 ############################################################################
 # Put everything together in load_db().
