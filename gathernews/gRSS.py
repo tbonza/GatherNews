@@ -338,13 +338,14 @@ class CaptureFeeds(object):
         into a separate table because it's easier
         to aggregate then deaggregate.
         """
-        if self.do_tables_exist() != False:
+        tables = self.do_tables_exist()
+        if tables:
             # Open database locally
             conn = sqlite3.connect(self.path + "FeedMe.db")
             conn.isolation_level = None
             c = conn.cursor()
             transaction_query = "BEGIN; "
-            for table_name in self.do_tables_exist():
+            for table_name in tables:
                 table = "CREATE TABLE " +  table_name + \
                         "( primary_key text, title text," + \
                         " description text, link text, published text); "
@@ -357,7 +358,7 @@ class CaptureFeeds(object):
             c.executescript(transaction_query)
             # close sqlite3 db
             conn.close()
-        elif self.do_tables_exist() == False:
+        elif tables is False:
             print("\n\tNo new tables need to be created")
         else:
             raise UserWarning("do_tables_exist() not returning a value")
