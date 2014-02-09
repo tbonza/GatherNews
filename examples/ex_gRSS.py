@@ -20,16 +20,8 @@ from gathernews.gRSS import CaptureFeeds
 file_path = "/home/tyler/code/GatherNews/examples/"
 # Instantiate the class
 capture_feeds = CaptureFeeds(file_path)
-
-# Create new tables if any new RSS feed addresses have been added
-print " Checking for new tables"
-capture_feeds.create_tables()
-# Populate all tables with RSS news feeds
-print " Populating the SQLite3 database"
-capture_feeds.populate_db()
-# Remove duplicate entries
-print " Removing duplicate entries from SQLite3 database"
-capture_feeds.rm_duplicates()
+# Create tables, load database, remove duplicates
+capture_feeds.load_db()
 
 
 

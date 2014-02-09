@@ -485,7 +485,10 @@ class CaptureFeeds(object):
                                              the_articles.feed.title)
             if self.match_names(insert_query_table_name) == True:
                 insert_query = "INSERT INTO " + insert_query_table_name + \
-                               " VALUES(?,?,?,?,?);"
+                               " VALUES (?,?,?,?,?)"
+
+                # unicode to ascii so life can go on.......
+                insert_query = insert_query.encode('ascii')
                 
                 # Populate data structure
                 insert_this_data[insert_query] = data_hold 
@@ -509,7 +512,8 @@ class CaptureFeeds(object):
         # Execute SQL script
         data = self.transaction_query()
         for table in data.keys():
-            c.executemany(table, data[table]) 
+            c.executemany(table, data[table])
+        conn.commit()
         # close sqlite3 db
         conn.close() 
         print("\tpopulate_db is complete")
