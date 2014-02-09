@@ -1,1 +1,1 @@
-import capture
+import gRSS

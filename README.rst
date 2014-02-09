@@ -2,7 +2,7 @@
 GatherNews
 ===========
 
-Gathers unstructured News data and commits it to a SQLite3 database.
+Gathers unstructured news data and commits it to a SQLite3 database.
 
 News is valuable when it contains actionable information. Collecting the news
 for text analytics should be easy; even if the news is unstructured data. The
@@ -17,7 +17,7 @@ providing the RSS link in "feeds_list.txt" like this:
     http://feeds.reuters.com/Reuters/worldNews
     http://rss.cnn.com/rss/money_latest.rss
 
-You can then gather the news using the load_db() methods:
+You can then gather the news using the load_db() method:
 
 .. code-block:: pycon
 		

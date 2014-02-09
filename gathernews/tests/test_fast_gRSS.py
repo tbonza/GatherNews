@@ -9,6 +9,8 @@ class TestFastgRSS:
     def setUp(self):
         assert not self.cls_initialized
         self.cls_initialized = True
+        
+        # File path to feeds_list.txt
         self.path = "/home/tyler/code/GatherNews/gathernews/tests/"
         self.capture_feeds = CaptureFeeds(self.path)
 
