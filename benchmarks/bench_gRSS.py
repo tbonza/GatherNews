@@ -33,7 +33,7 @@ class BenchmarkgRSS:
         return total
 
 # Let's make things interesting an run the version 0.2.0 against 0.1.0
-# Benchmarks were run on my laptop
+# Benchmarks were run on my laptop. 
 
 ## version 0.1.0 ##
 path = "/home/tyler/code/GatherNews/benchmarks/"
