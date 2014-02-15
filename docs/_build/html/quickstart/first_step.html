@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Start Quickly &mdash; GatherNews</title>
+    
+    <link rel="stylesheet" href="../_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="GatherNews" href="../index.html" />
+    <link rel="next" title="API" href="../api/grss.html" />
+    <link rel="prev" title="Welcome to GatherNews" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../api/grss.html" title="API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to GatherNews"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">GatherNews</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="start-quickly">
+<h1>Start Quickly<a class="headerlink" href="#start-quickly" title="Permalink to this headline">¶</a></h1>
+<p>Alright, let&#8217;s get you going. I&#8217;m assuming that your operating system is a
+debian linux distribution like <a class="reference external" href="http://www.ubuntu.com/">Ubuntu</a>, that you&#8217;re using <a class="reference external" href="http://python.org/download/">Python</a> version
+2.7, and that you are able to access your <a class="reference external" href="https://help.ubuntu.com/community/UsingTheTerminal">terminal</a>. We are going to load a
+sqlite3 database with news articles from several RSS feeds.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>If you haven&#8217;t already, you can install GatherNews via pip:</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> pip install gathernews
+</pre></div>
+</div>
+</div>
+<div class="section" id="project-setup">
+<h2>Project Setup<a class="headerlink" href="#project-setup" title="Permalink to this headline">¶</a></h2>
+<p>Now let&#8217;s set up a project.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> mkdir my_project
+<span class="gp">$</span> <span class="nb">cd </span>my_project
+<span class="gp">$</span> touch feeds_list.txt
+</pre></div>
+</div>
+<p>Add the RSS feeds you want to &#8220;feeds_list.txt&#8221;. Here are some that you may
+want to use:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="http://feeds.reuters.com/reuters/businessNews">http://feeds.reuters.com/reuters/businessNews</a></li>
+<li><a class="reference external" href="http://feeds.reuters.com/reuters/entertainment">http://feeds.reuters.com/reuters/entertainment</a></li>
+<li><a class="reference external" href="http://feeds.reuters.com/reuters/topNews">http://feeds.reuters.com/reuters/topNews</a></li>
+<li><a class="reference external" href="http://feeds.reuters.com/Reuters/worldNews">http://feeds.reuters.com/Reuters/worldNews</a></li>
+<li><a class="reference external" href="http://rss.cnn.com/rss/money_latest.rss">http://rss.cnn.com/rss/money_latest.rss</a></li>
+<li><a class="reference external" href="http://rss.cnn.com/rss/cnn_showbiz.rss">http://rss.cnn.com/rss/cnn_showbiz.rss</a></li>
+<li><a class="reference external" href="http://rss.cnn.com/rss/cnn_topstories.rss">http://rss.cnn.com/rss/cnn_topstories.rss</a></li>
+<li><a class="reference external" href="http://rss.cnn.com/rss/cnn_world.rss">http://rss.cnn.com/rss/cnn_world.rss</a></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="load-the-sqlite3-database">
+<h2>Load the SQLite3 database<a class="headerlink" href="#load-the-sqlite3-database" title="Permalink to this headline">¶</a></h2>
+<p>Now, we&#8217;re ready to load the SQLite3 database with articles from the RSS
+feeds we&#8217;ve previously specified.</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="gp">$</span> <span class="c"># First, let&#39;s get our project path and make note of it.</span>
+<span class="gp">$</span> <span class="nb">pwd</span>
+<span class="gp">$</span> <span class="c"># Now we&#39;re ready to start up Python</span>
+<span class="gp">$</span> python
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gathernews.gRSS</span> <span class="kn">import</span> <span class="n">CaptureFeeds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">capture_feeds</span> <span class="o">=</span> <span class="n">CaptureFeeds</span><span class="p">(</span><span class="s">&quot;/home/tyler/my_project/&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">capture_feeds</span><span class="o">.</span><span class="n">load_db</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>We&#8217;ve now created a new table for each one of the RSS feeds you previously
+specified, populated each table, and removed any duplicate entries in those
+tables.</p>
+<p>Anytime you want to load the database with new articles from your RSS feeds,
+we can just use the same method. Let&#8217;s say you add additional tables to your
+&#8220;feeds_list.txt&#8221;, just use the same method; load_db().</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Start Quickly</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#project-setup">Project Setup</a></li>
+<li><a class="reference internal" href="#load-the-sqlite3-database">Load the SQLite3 database</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Welcome to GatherNews</a></li>
+      <li>Next: <a href="../api/grss.html" title="next chapter">API</a></li>
+  </ul></li>
+</ul>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/quickstart/first_step.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2014, Tyler Brown.
+    </div>
+    <a href="https://github.com/Bonza-Times/GatherNews" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" />
+    </a>
+
+    <script type="text/javascript">
+
+      var _gaq2 = _gaq2 || [];
+      _gaq2.push(['_setAccount', 'UA-8742933-10']);
+      _gaq2.push(['_setDomainName', 'none']);
+      _gaq2.push(['_setAllowLinker', true]);
+      _gaq2.push(['_trackPageview']);
+
+      (function() {
+        var ga2 = document.createElement('script'); ga2.type = 'text/javascript'; ga2.async = true;
+        ga2.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga2, s);
+      })();
+
+    </script>
+
+    <script type="text/javascript">
+      (function() {
+        var t   = document.createElement('script');
+        t.type  = 'text/javascript';
+        t.async = true;
+        t.id    = 'gauges-tracker';
+        t.setAttribute('data-site-id',
+                       '4ddc1cfaf5a1f50fcc000001');
+        t.src = '//secure.gaug.es/track.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(t, s);
+      })();
+    </script>
+  </body>
+</html>
