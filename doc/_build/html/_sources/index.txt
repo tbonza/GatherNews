@@ -11,19 +11,17 @@ Welcome to GatherNews
    :alt: GatherNews: capture news data, easily
    :class: floatingmic
 
-Welcome to GatherNews' documentation. If you'd just like to get started,
-head over to the :ref:'quickstart'. Otherwise, you can learn more about
-the internals of GatherNews over at the :ref:'api' documentation. Each
-modules' database details are located at :ref:'schema'. 
+The goal for GatherNews is to quickly and simply capture news data.
 
-GatherNews depends on two key external libraries: 'Universal Feed Parser'_ &
-'Simpleflake'_ (distributed ID generation for the lazy). More info about
-these packages is here:
+Once you've gathered a custom news dataset, you might want to analyze your
+data with nltk_ or gensim_. 
 
--  'Universal Feed Parser Documentation <http://pythonhosted.org/feedparser/introduction.html/>'_
--  'Simpleflake Documentation <http://engineering.custommade.com/simpleflake-distributed-id-generation-for-the-lazy/>'_
+GatherNews depends on two key external libraries: feedparser_
+and Simpleflake_ (distributed ID generation for the lazy).
 
-.. _Universal Feed Parser: http://pythonhosted.org/feedparser/
+.. _nltk: http://www.nltk.org/
+.. _gensim: http://radimrehurek.com/gensim/
+.. _feedparser: http://pythonhosted.org/feedparser/
 .. _Simpleflake: http://engineering.custommade.com/simpleflake-distributed-id-generation-for-the-lazy/
 
 .. include:: contents.rst.inc
