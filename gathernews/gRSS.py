@@ -470,12 +470,18 @@ class CaptureFeeds(object):
                 # title
                 title = article.title_detail.value
                 # summary/description
-                description = self.for_fucks_sake(article.\
-                                                  summary_detail.value)
+                try:
+                    description = self.for_fucks_sake(article.\
+                                                      summary_detail.value)
+                except:
+                    description = ""
                 # link
                 article_link = article.links[0].href
                 # published
-                published = article.published
+                try:
+                    published = article.published
+                except:
+                    published = ""
 
                 data_hold.append((primary_key, title, description,
                                   article_link, published))
