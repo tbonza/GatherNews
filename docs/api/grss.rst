@@ -12,3 +12,5 @@ gRSS
 	     transaction_query
 
 	       
+So you need to change the docstring for transaction_query and then maybe
+just take a second look at this.
