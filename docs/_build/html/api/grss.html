@@ -56,6 +56,137 @@
   <div class="section" id="api">
 <h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
 <p>This is where I would talk about the various things you can do with the API</p>
+<div class="section" id="grss">
+<h2>gRSS<a class="headerlink" href="#grss" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gathernews.gRSS.CaptureFeeds">
+<em class="property">class </em><tt class="descclassname">gathernews.gRSS.</tt><tt class="descname">CaptureFeeds</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commits RSS news feeds to a SQLite3 database</p>
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.create_tables">
+<tt class="descname">create_tables</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.create_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates tables for RSS news feeds</p>
+<p>Creates db tables where each RSS link feeds
+into a separate table because it&#8217;s easier
+to aggregate then deaggregate.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.fix_create_table_bug">
+<tt class="descname">fix_create_table_bug</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.fix_create_table_bug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fix the create table bug</p>
+<p>In GatherNews 0.1.0, a bug was introduced that does not allow you
+to add new RSS feeds to the &#8216;feeds_list.txt&#8217; after your initial
+call of the create_tables() method.</p>
+<p>This method was created because we have no way of knowing which
+RSS feed links match which RSS table names without making a call
+to each RSS feed and recreating each table name.</p>
+<p>If you have previously used GatherNews 0.1.0 you should call this
+method once before calling any other methods on your previously
+created &#8216;FeedMe.db&#8217;. Once this method is called then the issue should
+be resolved.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Writes a JSON object to your disk called &#8216;previous_feeds_list&#8217;
+that will fix the create_table() bug.</dd>
+<dt>Raises:</dt>
+<dd>UserWarning: This bug fix is not needed</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.get_RSS_link">
+<tt class="descname">get_RSS_link</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.get_RSS_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>RSS links used to pull feeds</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.get_tablenames">
+<tt class="descname">get_tablenames</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.get_tablenames" title="Permalink to this definition">¶</a></dt>
+<dd><p>All table names are extracted for use in SQL queries.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>revised_list: A list of all table names in the database is here.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.make_table_names">
+<tt class="descname">make_table_names</tt><big>(</big><em>RSS_link</em>, <em>create_these_tables</em><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.make_table_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the table names for the sqlite3 database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>RSS_link: RSS_link from &#8216;feeds_list.txt&#8217;
+create_these_tables: A list of table names to be created.</dd>
+<dt>Returns:</dt>
+<dd>The &#8216;create_these_tables&#8217; list is returned with a table name
+appended to it.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.populate_db">
+<tt class="descname">populate_db</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.populate_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Queries are matched with dict keys which then
+provides the values associated with each query by sharing
+the table names as a reference point. This allows rows to be 
+populated for each table leading to the population of the db.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.read_file">
+<tt class="descname">read_file</tt><big>(</big><em>path</em>, <em>your_file_name</em><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.read_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in file so that only rss links are included</p>
+<blockquote>
+<div>Unfortunately, .readlines() or .read() alone was sucking in extra
+&#8216;</div></blockquote>
+<dl class="docutils">
+<dt>&#8216; symbols not related to the RSS links. This approach uses regular</dt>
+<dd><p class="first">expressions to only list items that are consistent with an RSS feed
+link.</p>
+<dl class="last docutils">
+<dt>Args:</dt>
+<dd>path: the file path. Ex. &#8220;home     ylerGathernewsgathernews&#8221;
+your_file_name: name of file you want to read</dd>
+<dt>Returns:</dt>
+<dd>List of strings where each string is a link to an RSS feed</dd>
+<dt>Raises:</dt>
+<dd>UserWarning: &#8220;Could not recognize the file&#8221;</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.rm_duplicates">
+<tt class="descname">rm_duplicates</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.rm_duplicates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Limitation of this duplicate removal approach is that only one
+duplicate entry will be removed (containing the lowest valued
+primary_key). If the number of  duplicate entries per item  &gt; 2
+then that will introduce a bug.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.transaction_query">
+<tt class="descname">transaction_query</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.transaction_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transaction query that inserts data into the tables</p>
+<p>Create a .sql script by creating a string with each statement
+separated by a semicolon. The string starts with BEGIN and ends
+with COMMIT.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>A string containing one INSERT INTO query for each new row
+in each table. For example, Reuters World News may have 30
+new articles so 30 INSERT INTO queries will be added to this
+string for that table. The string includes all INSERT INTO
+queries for all tables. The goal is to open/close the database
+less to speed up the process.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -63,7 +194,15 @@
         </div>
       </div>
       <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">API</a><ul>
+<li><a class="reference internal" href="#grss">gRSS</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
       <li>Previous: <a href="../quickstart/first_step.html" title="previous chapter">Start Quickly</a></li>

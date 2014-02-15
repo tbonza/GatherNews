@@ -38,7 +38,7 @@ want to use:
     * http://rss.cnn.com/rss/cnn_topstories.rss
     * http://rss.cnn.com/rss/cnn_world.rss
 
-Load the SQLite3 database
+Load a SQLite3 database
 -------------------------
 
 Now, we're ready to load the SQLite3 database with articles from the RSS
