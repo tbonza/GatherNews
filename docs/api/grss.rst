@@ -1,16 +1,15 @@
 API
 ===
 
-This is where I would talk about the various things you can do with the API
+Some of these methods can be used to interact with a SQLite3 database. Others
+are useful if you'd like to interact with the article data.
 
 gRSS
 ----
 
 .. autoclass:: gathernews.gRSS.CaptureFeeds
-   :members: read_file, get_tablenames, get_RSS_link, fix_create_table_bug,
-	     make_table_names, create_tables, populate_db, rm_duplicates,
-	     transaction_query
-
+   :members: load_db, fix_create_table_bug, create_tables, populate_db,
+	     rm_duplicates, read_file, get_tablenames, get_RSS_link,
+	     make_table_names, rss_feeds_data
+	     
 	       
-So you need to change the docstring for transaction_query and then maybe
-just take a second look at this.

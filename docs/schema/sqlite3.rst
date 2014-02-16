@@ -1,4 +1,11 @@
 Database Schema
----------------
+===============
 
-This is where I would talk about the database schema
+The following schemas are used for the SQLite3 database.
+
+gRSS schema
+-----------
+
+CREATE TABLE TableName( primary_key text, title text, description text,
+link text, published text);
+

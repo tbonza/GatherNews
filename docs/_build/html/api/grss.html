@@ -55,7 +55,8 @@
             
   <div class="section" id="api">
 <h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
-<p>This is where I would talk about the various things you can do with the API</p>
+<p>Some of these methods can be used to interact with a SQLite3 database. Others
+are useful if you&#8217;d like to interact with the article data.</p>
 <div class="section" id="grss">
 <h2>gRSS<a class="headerlink" href="#grss" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -108,6 +109,12 @@ that will fix the create_table() bug.</dd>
 <dt>Returns:</dt>
 <dd>revised_list: A list of all table names in the database is here.</dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="gathernews.gRSS.CaptureFeeds.load_db">
+<tt class="descname">load_db</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.load_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the sqlite3 database</p>
 </dd></dl>
 
 <dl class="method">
@@ -167,20 +174,19 @@ then that will introduce a bug.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="gathernews.gRSS.CaptureFeeds.transaction_query">
-<tt class="descname">transaction_query</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.transaction_query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transaction query that inserts data into the tables</p>
-<p>Create a .sql script by creating a string with each statement
-separated by a semicolon. The string starts with BEGIN and ends
-with COMMIT.</p>
+<dt id="gathernews.gRSS.CaptureFeeds.rss_feeds_data">
+<tt class="descname">rss_feeds_data</tt><big>(</big><big>)</big><a class="headerlink" href="#gathernews.gRSS.CaptureFeeds.rss_feeds_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of table names mapped to a list of tuples for articles</p>
+<p>This data structure is the &#8216;last stop&#8217; before the article information
+is loaded into the SQL database. As such, it can also be called by
+itself; if loading a database is not what we want to do.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
-<dd>A string containing one INSERT INTO query for each new row
-in each table. For example, Reuters World News may have 30
-new articles so 30 INSERT INTO queries will be added to this
-string for that table. The string includes all INSERT INTO
-queries for all tables. The goal is to open/close the database
-less to speed up the process.</dd>
+<dd>Each key is a table name in the SQL database. The table name is
+mapped to a list of tuples. Each tuple in the list contains one
+string for every field in the database schema. The tuple is:
+(article title, article description, article link, date/time
+article published)</dd>
 </dl>
 </dd></dl>
 

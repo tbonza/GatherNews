@@ -439,20 +439,19 @@ class CaptureFeeds(object):
             return False
 
 
-    def transaction_query(self):
-        """ Transaction query that inserts data into the tables
+    def rss_feeds_data(self):
+        """ Dictionary of table names mapped to a list of tuples for articles
 
-        Create a .sql script by creating a string with each statement
-        separated by a semicolon. The string starts with BEGIN and ends
-        with COMMIT.
-
+        This data structure is the 'last stop' before the article information
+        is loaded into the SQL database. As such, it can also be called by
+        itself; if loading a database is not what we want to do.
+        
         Returns:
-            A string containing one INSERT INTO query for each new row
-            in each table. For example, Reuters World News may have 30
-            new articles so 30 INSERT INTO queries will be added to this
-            string for that table. The string includes all INSERT INTO
-            queries for all tables. The goal is to open/close the database
-            less to speed up the process.
+            Each key is a table name in the SQL database. The table name is
+            mapped to a list of tuples. Each tuple in the list contains one
+            string for every field in the database schema. The tuple is:
+            (article title, article description, article link, date/time
+            article published)
         """
 
         ## Data structure is a article graph
@@ -516,7 +515,7 @@ class CaptureFeeds(object):
         conn = sqlite3.connect(self.path + "FeedMe.db")
         c = conn.cursor()
         # Execute SQL script
-        data = self.transaction_query()
+        data = self.rss_feeds_data()
         for table in data.keys():
             c.executemany(table, data[table])
         conn.commit()
