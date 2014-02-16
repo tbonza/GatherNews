@@ -52,6 +52,24 @@ directory (you will need to have nosetests installed):
 
     $ nosetests --exe GatherNews
 
+Bug Resolution
+--------------
+
+In GatherNews 0.1.0, a bug was introduced that does not allow you to add new
+RSS feeds to the ‘feeds_list.txt’ after your initial call of the
+create_tables() method. Before using version 0.2.0 on a preexisting database
+call the following method.
+
+.. code-block:: pycon
+
+    >>> path = "path/to_your/existing_sqlite3_db/
+    >>> from gathernews.gRSS import CaptureFeeds
+    >>> capture_feeds = CaptureFeeds(path)
+    >>> capture_feeds.fix_create_table_bug()
+
+If this gives you any problems, email me directly (tylers.pile@gmail.com).
+Thanks.
+ 
 Documentation
 -------------
 
