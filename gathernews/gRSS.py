@@ -5,8 +5,7 @@ The module is designed to make it very easy for Python programmers to
 load their selected RSS feeds into a SQLite3 database. This module arose
 out of a need to create custom datasets that can be used for text analytics.
 
-LICENSE: This is open-source software released under the terms of the
-GPL (http://www.gnu.org/licenses/gpl.html).
+LICENSE: MIT license (http://opensource.org/licenses/MIT)
 
 PLATFORMS: This should run on any platform where the dependencies are
 available.
@@ -32,7 +31,7 @@ The sqlite3 database is loaded using the following schema:
 Each table is assigned a unique table name that's taken from the name of the
 designated RSS feed. 
 
-DOCUMENTATION: For complete documentation, http://pythonhosted.org/GatherNews
+DOCUMENTATION: http://gathernews.readthedocs.org/en/latest/
 """
 
 import feedparser
