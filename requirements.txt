@@ -1,4 +1,5 @@
 argparse==1.2.1
 feedparser==5.1.3
+nose==1.3.0
 simpleflake==0.1.5
 wsgiref==0.1.2
