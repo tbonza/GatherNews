@@ -1,6 +1,7 @@
-from nose.tools import assert_raises, assert_true, assert_false
+from nose.tools import assert_raises, assert_true, assert_false, eq_
 import sqlite3
 from gathernews.gRSS import CaptureFeeds
+import os
 
 class TestNewTablesCreated:
     """ Check to see if new tables names are created when new RSS links
@@ -16,10 +17,7 @@ class TestNewTablesCreated:
 
         ## Setting file paths
         # File path to feeds_list.txt
-        self.path = "/home/tyler/code/GatherNews/gathernews/tests/"
-        # File path to previous_feeds_list.json
-        self.json_path = "/home/tyler/code/GatherNews/gathernews/"\
-                         + "tests/gathernews/"
+        self.path = os.path.abspath("") + "/GatherNews/gathernews/tests/"
         
         ## Instantiating CaptureFeeds
         self.capture_feeds = CaptureFeeds(self.path)
@@ -39,7 +37,7 @@ class TestNewTablesCreated:
         """
         # set parameters to test data
         path = self.path
-        your_file_name = "feeds_list.txt"
+        your_file_name = "bad_feeds_list.txt"
         # make sure that none of the bad RSS links were returned
         assert_raises(UserWarning, self.capture_feeds.read_file, path,
                       your_file_name)
@@ -48,7 +46,7 @@ class TestNewTablesCreated:
     def test_update_feeds_json(self):
         """ Make sure you can create/update a JSON object in ~/tests """
         # set parameters to test data
-        path = self.json_path
+        path = self.path
         # Set create_these_tables to 0 so False is returned
         create_these_tables = []
         # Let's assume we haven't created tables previously. 
@@ -69,11 +67,11 @@ class TestNewTablesCreated:
     def test_does_json_exist(self):
         """ Make sure you can access the JSON object """
         # set parameters to test data
-        path = self.json_path 
+        path = self.path 
         your_file_name = 'previous_feeds_list.json'
         ## We're going to pretend the JSON object isn't there
-        assert_false(self.capture_feeds.does_json_exist(path,
-                                                        your_file_name))
+        assert_true(self.capture_feeds.does_json_exist(path,
+                                                       your_file_name))
 class TestNewTablesCreated2:
     """ Check to see if new tables names are created when new RSS links
         are added BUT use instantiate the class with a different file
@@ -90,7 +88,7 @@ class TestNewTablesCreated2:
 
         ## Setting file paths
         # File path to FeedMe.db
-        self.db_path = "/home/tyler/code/GatherNews/examples/"
+        self.db_path = os.path.abspath("") + "/GatherNews/examples/"
         
         ## Instantiating CaptureFeeds
         self.capture_feeds = CaptureFeeds(self.db_path)
@@ -137,7 +135,7 @@ class TestNewTableCreation:
     def setUp(self):
         assert not self.cls_initialized
         self.cls_initialized = True
-        self.path = "/home/tyler/code/GatherNews/gathernews/tests/"
+        self.path = os.path.abspath("") + "/GatherNews/gathernews/tests/"
         self.capture_feeds = CaptureFeeds(self.path)
         
 
@@ -175,12 +173,14 @@ class TestNewTableCreation:
 
         The error should be raised here from read_file()
         """
-        assert_raises(UserWarning, self.capture_feeds.do_tables_exist)
+        tables = self.capture_feeds.do_tables_exist
+        assert_false(tables())
 
     def test_create_tables(self):
         """ See if Warning is raised when we don't know if tables should
         be created or left alone """
-        assert_raises(UserWarning, self.capture_feeds.create_tables)
+        tables = self.capture_feeds.create_tables
+        assert_false(tables())
 
         
 
@@ -195,7 +195,7 @@ class TestPopulateExistingTables:
     def setUp(self):
         assert not self.cls_initialized
         self.cls_initialized = True
-        self.path = "/home/tyler/code/GatherNews/gathernews/tests/"
+        self.path = os.path.abspath("") +"/GatherNews/gathernews/tests/"
         self.capture_feeds = CaptureFeeds(self.path)
         
 
@@ -259,29 +259,4 @@ class TestPopulateExistingTables:
         # expression search returns no result.
 
 
-    def test_transaction_query(self):
-        pass
-        ## Not sure what's going on with this one. Here's your point of
-        ## departure.
-
-    
-        
-class TestDuplicateRemoval:
-    """ Make sure duplicate entries can be successfully removed. """
-        
-    def __init__(self):
-        self.cls_initialized = False
-        
-
-    def setUp(self):
-        assert not self.cls_initialized
-        self.cls_initialized = True
-        self.path = "/home/tyler/code/GatherNews/gathernews/tests/"
-        self.capture_feeds = CaptureFeeds(self.path)
-        
-
-    def tearDown(self):
-        assert self.cls_initialized
-        self.cls_initialized = False
-
-    # actual tests
+   

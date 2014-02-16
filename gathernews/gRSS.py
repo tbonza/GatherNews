@@ -73,6 +73,7 @@ class CaptureFeeds(object):
 
         Raises:
             UserWarning: "Could not recognize the file"
+        
         """
         your_file = open(path + your_file_name, 'r').read()
         f = your_file.split("\n")
@@ -357,8 +358,10 @@ class CaptureFeeds(object):
             c.executescript(transaction_query)
             # close sqlite3 db
             conn.close()
+            return True
         elif tables is False:
             print("\n\tNo new tables need to be created")
+            return False
         else:
             raise UserWarning("do_tables_exist() not returning a value")
 

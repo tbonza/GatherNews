@@ -21,3 +21,9 @@ then goes more in depth about its features.
    :maxdepth: 2
 
    schema/sqlite3
+
+.. License
+.. toctree::
+   :maxdepth: 1
+
+   license

@@ -2,12 +2,8 @@
 GatherNews
 ===========
 
-Gathers unstructured news data and commits it to a SQLite3 database.
-
-News is valuable when it contains actionable information. Collecting the news
-for text analytics should be easy; even if the news is unstructured data. The
-goal for GatherNews is to quickly and simply gather News data. We want to
-know who, what, when, where, why, and how. We want it in a SQL database.
+Gathers unstructured news data and commits it to a SQLite3 database.The goal
+for GatherNews is to quickly and simply capture news data.
 
 GatherNews allows you to specify which News sites you want to capture by
 providing the RSS link in "feeds_list.txt" like this:
@@ -46,16 +42,25 @@ To install GatherNews use pip:
 		
     $ pip install gathernews
 
+Testing
+-------
+
+After installation, you can launch the test suite from outside the source
+directory (you will need to have nosetests installed):
+
+.. code-block:: bash
+
+    $ nosetests --exe GatherNews
+
 Documentation
 -------------
 
-Documentation is available at http://pythonhosted.org/GatherNews/
+Documentation is available at http://gathernews.readthedocs.org/en/latest/
 
 Contribute
 ----------
 
 #. Issue tracker is here: https://github.com/Bonza-Times/GatherNews/issues
-#. Feel free to email tylers.pile@gmail.com about anything.
 #. Fork it!
 
 
