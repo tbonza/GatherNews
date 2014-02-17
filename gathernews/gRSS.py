@@ -469,21 +469,30 @@ class CaptureFeeds(object):
                 primary_key = str(simpleflake())
                 ## Remaining columns are from feedparser
                 # title
-                title = article.title_detail.value
+                try:
+                    title = article.title_detail.value
+                except:
+                    title = ""
+                    logging.warning("title not found")
                 # summary/description
                 try:
                     description = self.for_fucks_sake(article.\
                                                       summary_detail.value)
                 except:
                     description = ""
-                # link
-                article_link = article.links[0].href
+                    logging.warning("description not found")
+                    # link
+                try:
+                    article_link = article.links[0].href
+                except:
+                    article_link = ""
+                    logging.warning("article link not found")
                 # published
                 try:
                     published = article.published
                 except:
                     published = ""
-
+                    logging.warning("date/time published not found")
                 data_hold.append((primary_key, title, description,
                                   article_link, published))
 
