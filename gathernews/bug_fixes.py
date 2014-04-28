@@ -1,7 +1,15 @@
+from io import ReadFiles
+from sqlite3_io import Sqlite3IO
 
-class v1_bugs:
-    """ Any functions that must be called to keep the versions compatible"""
 
+class v1_bugs(object):
+    """ Any functions that must be called to keep the version 1 compatible"""
+
+    def __init__(self, path):
+        self.read_files = ReadFiles(path)
+        self.use_sqlite3 = Sqlite3IO(path)
+        self.path = path
+        
     def fix_create_table_bug(self):
         """ Fix the create table bug
 
@@ -27,7 +35,7 @@ class v1_bugs:
         """
         
         # get table names from the database
-        db_names = self.get_tablenames()
+        db_names = self.use_sqlite3.get_tablenames()
 
         # get table names from RSS feeds
         create_these_tables = {}

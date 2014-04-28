@@ -1,5 +1,5 @@
-class io(object):
-    """ Does anything related to reading or writing from file storage """
+class ReadFiles(object):
+    """ Does anything related to reading from file storage """
 
     def __init__(self, path):
         self.path = path
@@ -41,7 +41,35 @@ class io(object):
         return clean_file
 
 
-     def update_feeds_json(self, path, create_these_tables,
+    def does_json_exist(self, path, your_file_name):
+        """ If a json object exists then return it
+
+        Args:
+            file_name: This is the name of your file.
+
+        Returns:
+            A json object from your specified path is returned.
+        """
+        try:
+            with open(path + your_file_name, 'r') as f:
+                return json.load(f)
+        # At some point you should create a method that checks to see if the
+        # file path given by the user is accurate. 
+        except:
+            return False
+
+    
+    def get_RSS_link(self):
+        """RSS links used to pull feeds"""
+        return self.read_file(self.path, "feeds_list")
+        
+
+class WriteFiles(ReadFiles):
+    """ Does anything related to writing from file storage """
+    # Not sure what this will inherit for a file_path from ReadFiles
+    # under which conditions, but hey, isn't learning fun
+    
+    def update_feeds_json(self, path, create_these_tables,
                           previous_feeds_list, current_feeds_list):
         """ A JSON object of table_names in the database is updated.
 
@@ -73,26 +101,3 @@ class io(object):
                return json.dump(previous_feeds_list, f)
         else:
             return False
-
-
-    def does_json_exist(self, path, your_file_name):
-        """ If a json object exists then return it
-
-        Args:
-            file_name: This is the name of your file.
-
-        Returns:
-            A json object from your specified path is returned.
-        """
-        try:
-            with open(path + your_file_name, 'r') as f:
-                return json.load(f)
-        # At some point you should create a method that checks to see if the
-        # file path given by the user is accurate. 
-        except:
-            return False
-
-    
-    def get_RSS_link(self):
-        """RSS links used to pull feeds"""
-        return self.read_file(self.path, "feeds_list.txt")

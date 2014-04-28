@@ -41,6 +41,19 @@ import re
 import json
 import logging
 
+## custom modules
+
+# clean input
+from io import ReadFiles, WriteFiles
+from rm_garbage import FilterGarbage
+from bug_fixes import v1_bugs
+# play well with DBs
+from mongo_io import MongoIO
+from sqlite3_io import Sqlite3IO
+# handle requests quickly 
+#from async import *
+#from threads import *
+
 
 class CaptureFeeds(object):
     """ Commits RSS news feeds to a SQLite3 database  """
