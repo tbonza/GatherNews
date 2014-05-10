@@ -1,6 +1,10 @@
+import sqlite3
 
 class Sqlite3IO:
     """ Anything related to SQLite3 IO """
+
+    def __init__(self, path):
+        self.path = path
 
     def get_tablenames(self):
         """ All table names are extracted for use in SQL queries.
@@ -22,7 +26,7 @@ class Sqlite3IO:
         conn.close() # close sqlite3 db
         return revised_list
 
-        def create_tables(self):
+    def create_tables(self):
         """ Creates tables for RSS news feeds
 
         Creates db tables where each RSS link feeds

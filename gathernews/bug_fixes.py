@@ -1,8 +1,10 @@
 from io import ReadFiles
 from sqlite3_io import Sqlite3IO
+import feedparser
+import re, json
 
 
-class v1_bugs(object):
+class V1Bugs(object):
     """ Any functions that must be called to keep the version 1 compatible"""
 
     def __init__(self, path):
@@ -39,7 +41,8 @@ class v1_bugs(object):
 
         # get table names from RSS feeds
         create_these_tables = {}
-        for RSS_link in self.read_file(self.path, "feeds_list.txt"):
+        for RSS_link in self.read_files.read_file(self.path,
+                                                  "feeds_list.txt"):
             d = feedparser.parse(RSS_link)
             table_name = re.sub(r'\W+', '', d.feed.title)
             create_these_tables[table_name] = RSS_link
@@ -61,7 +64,7 @@ class v1_bugs(object):
             raise UserWarning("This bug fix is not needed")
 
         else:
-                
+            
             # see which names match
             correct_RSS_links = []
             for table in db_names:

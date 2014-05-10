@@ -46,7 +46,7 @@ import logging
 # clean input
 from io import ReadFiles, WriteFiles
 from rm_garbage import FilterGarbage
-from bug_fixes import v1_bugs
+from bug_fixes import V1Bugs
 # play well with DBs
 from mongo_io import MongoIO
 from sqlite3_io import Sqlite3IO
@@ -69,7 +69,57 @@ class CaptureFeeds(object):
 ############################################################################
 # Check to see if you need new tables created.
 
+    def fix_create_table_bug(self):
+        """ Fix the create table bug V0.1.0
 
+        This method is contained in this class to stay consistent with
+        previous versions. All bug fixes after V0.2.1 are located in
+        gathernews.bug_fixes
+        """
+        v1_bugs = V1Bugs(self.path)
+        return v1_bugs.fix_create_table_bug()
+
+        
+    def read_file(self, path, your_file_name):
+        """ Reads in file so that only rss links are included """
+        read_files = ReadFiles(self.path)
+        return read_files.read_file(path, your_file_name)
+         
+
+    def update_feeds_json(self, path, create_these_tables,
+                          previous_feeds_list, current_feeds_list):
+        """ A JSON object of table_names in the database is updated.
+
+        This method is contained in this class to stay consistent with
+        previous versions. All input/ouput after V0.2.1 is located in
+        gathernews.io
+        """
+        write_files = WriteFiles(self.path)
+        return write_files.update_feeds_json(path, create_these_tables,
+                                             previous_feeds_list,
+                                             current_feeds_list)
+
+    def does_json_exist(self, path, your_file_name):
+        """ If a json object exists then return it
+
+        This method is contained in this class to stay consistent with
+        previous versions. All input/ouput after V0.2.1 is located in
+        gathernews.io
+        """
+        self.read_files = ReadFiles(self.path)
+        return self.read_files.does_json_exist(path, your_file_name)
+
+    def get_RSS_link(self):
+        """ RSS links used to pull feeds
+
+        This method is contained in this class to stay consistent with
+        previous versions. All input/ouput after V0.2.1 is located in
+        gathernews.io
+        """
+        read_files = ReadFiles(self.path)
+        return read_files.get_RSS_link()
+        
+        
 ############################################################################
 # Create the new tables if it is necessary.
 

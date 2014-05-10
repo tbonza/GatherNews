@@ -1,11 +1,12 @@
-
-
+import re
+import logging
 
 
 class FilterGarbage:
     """ Filter out any garbage from Feedparser input """
 
-     def regex_match(self, regex):
+
+    def regex_match(self, regex):
         """ Return the regular expression match if it exists
 
         Args:

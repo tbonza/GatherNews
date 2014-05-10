@@ -1,3 +1,6 @@
+import re
+import json
+
 class ReadFiles(object):
     """ Does anything related to reading from file storage """
 
@@ -61,7 +64,7 @@ class ReadFiles(object):
     
     def get_RSS_link(self):
         """RSS links used to pull feeds"""
-        return self.read_file(self.path, "feeds_list")
+        return self.read_file(self.path, "feeds_list.txt")
         
 
 class WriteFiles(ReadFiles):
