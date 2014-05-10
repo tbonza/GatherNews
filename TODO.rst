@@ -23,6 +23,7 @@ Done list
 =========
 
 1. Incomplete
+
    A. complete
    B. complete
    C. incomplete
@@ -31,6 +32,7 @@ Done list
    F. incomplete
 
 2. Incomplete
+
    G. incomplete
    H. incomplete
    I. incomplete
