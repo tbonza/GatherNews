@@ -1,7 +1,8 @@
 TODO list 
 =========
 
-1. Just did a bunch of refactoring so tests need to be rewritten & passing
+1. Just did a bunch of refactoring so tests need to be rewritten & passing.
+
    A. Almost completed gathernews.bug_fixes, need internet to verify passing.
    B. Next, will be gathernews.io
    C. gathernews.rm_garbage
@@ -9,7 +10,8 @@ TODO list
    E. gathernews.sqlite3_io
    F. gathernews.gRSS
 
-2. Then we can adding some stuff and gettings tests that pass that 
+2. Then we can adding some stuff and gettings tests that pass that.
+ 
    G. gathernews.mongo_io
    H. gathernews.async
    I. gathernews.threads
