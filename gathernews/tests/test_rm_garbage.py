@@ -80,10 +80,11 @@ class TestFilterGarbage:
 
 
     def test_regex_match(self):
-        """ Define conditions where regex matches return expected results """
-        pass
+        """ Regex match will break with more than 1 group matching
+            or if an arbitrary string is passed """
+        assert_raises(AttributeError, self.rm_garbage.regex_match, "")
 
 
     def test_for_fucks_sake(self):
         """ Perhaps this method isn't entirely necessary; let's check """
-        pass
+        pass # will have to look more into this with xml_settings

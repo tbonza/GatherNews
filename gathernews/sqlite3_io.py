@@ -1,3 +1,4 @@
+from gathernews.gRSS import CaptureFeeds
 import sqlite3
 
 class Sqlite3IO:
@@ -5,6 +6,7 @@ class Sqlite3IO:
 
     def __init__(self, path):
         self.path = path
+        self.capture_feeds = CaptureFeeds(self.path)
 
     def get_tablenames(self):
         """ All table names are extracted for use in SQL queries.
@@ -33,7 +35,7 @@ class Sqlite3IO:
         into a separate table because it's easier
         to aggregate then deaggregate.
         """
-        tables = self.do_tables_exist()
+        tables = self.capture_feeds.do_tables_exist()
         if tables:
             # Open database locally
             conn = sqlite3.connect(self.path + "FeedMe.db")

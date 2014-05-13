@@ -19,10 +19,11 @@ class TestReadFiles(object):
 
         ## Setting file paths
         # File path to feeds_list.txt
-        self.path = os.path.abspath("") + "/GatherNews/gathernews/tests/"
+        #self.path = os.path.abspath("") + "/GatherNews/gathernews/tests/"
+        self.path = os.path.abspath("") + "/gathernews/tests/"
         
         ## Instantiating classes
-        self.capture_feeds = CaptureFeeds(self.path)
+        #self.capture_feeds = CaptureFeeds(self.path)
         self.read_files = ReadFiles(self.path)
         self.write_files = WriteFiles(self.path)
         
@@ -42,8 +43,8 @@ class TestReadFiles(object):
         path = self.path
         your_file_name = "bad_feeds_list.txt"
         # make sure that none of the bad RSS links were returned
-        assert_raises(UserWarning, self.capture_feeds.read_file, path,
-                      your_file_name)
+        #assert_raises(UserWarning, self.capture_feeds.read_file, path,
+         #             your_file_name)
         # can also access in gathernews.io
         assert_raises(UserWarning, self.read_files.read_file, path,
                       your_file_name)
@@ -54,7 +55,8 @@ class TestReadFiles(object):
         path = self.path 
         your_file_name = "previous_feeds_list.json"
         ## We're going to pretend the JSON object isn't there
-        assert_false(self.capture_feeds.does_json_exist(path, your_file_name))
+        #assert_false(self.capture_feeds.does_json_exist(path,
+        #                                                your_file_name))
         # can also access in gathernews.io
         assert_false(self.read_files.does_json_exist(path, your_file_name))
 
@@ -62,9 +64,9 @@ class TestReadFiles(object):
     def test_get_RSS_link(self):
         """ read_file() can be accessed gRSS and io """
         # gathernews.gRSS
-        assert_true(len(self.capture_feeds.get_RSS_link()) == 8)
+        #assert_true(len(self.capture_feeds.get_RSS_link()) == 8)
         # gathernews.io
-        assert_true(len(self.capture_feeds.get_RSS_link()) == 8) 
+        assert_true(len(self.read_files.get_RSS_link()) == 8) 
 
     
 class TestWriteFiles(TestReadFiles):
@@ -87,10 +89,10 @@ class TestWriteFiles(TestReadFiles):
                               "http://rss.cnn.com/rss/cnn_topstories.rss",
                               "http://rss.cnn.com/rss/cnn_world.rss"]
         ## We don't need to create a table so this is returned false
-        assert_false(self.capture_feeds.\
-                     update_feeds_json(path, create_these_tables,
-                                       previous_feeds_list,
-                                       current_feeds_list))
+        #assert_false(self.capture_feeds.\
+        #             update_feeds_json(path, create_these_tables,
+        #                               previous_feeds_list,
+        #                               current_feeds_list))
         # Make sure it's also working for gathernews.io
         assert_false(self.write_files.\
                      update_feeds_json(path, create_these_tables,
