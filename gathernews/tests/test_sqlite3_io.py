@@ -63,8 +63,6 @@ class TestNewTableCreation:
         assert self.cls_initialized
         self.cls_initialized = False
 
-    # actual tests
-    pass
 
     
 

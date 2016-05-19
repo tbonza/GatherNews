@@ -1,5 +1,5 @@
-from io import ReadFiles
-from sqlite3_io import Sqlite3IO
+from myio import ReadFiles
+from sqlite3_io import SQLite3IO
 import feedparser
 import re, json
 
