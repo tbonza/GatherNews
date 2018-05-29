@@ -1,6 +1,4 @@
-===========
-GatherNews
-===========
+# GatherNews
 
 Gathers unstructured news data and commits it to a SQLite3 database.The goal
 for GatherNews is to quickly and simply capture news data.

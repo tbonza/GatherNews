@@ -11,7 +11,7 @@ from gathernews.template import ITEM
 logger = logging.getLogger(__name__)
 
 
-def get_source(fp: feedparser.FeedParserDict) -> str:
+def get_source(fp: feedparser.FeedParserDict()) -> str:
     try:
         return fp['feed']['title_detail']['base']
     except Exception as ex:
@@ -24,12 +24,19 @@ def left_pad(num: int) -> str:
     else:
         return str(num)
 
-def get_datetime(fp: feedparser.FeedParserDict) -> str:
-    tm = datetime.now()
-    return str(tm.year) + left_pad(tm.month) + left_pad(tm.day) + \
-        left_pad(tm.hour) + left_pad(tm.minute)
+def get_datetime(fp: feedparser.FeedParserDict()) -> str:
+    try:
+        tm = fp['feed']['updated_parsed']
+        return str(tm.year) + left_pad(tm.month) + left_pad(tm.day) + \
+            left_pad(tm.hour) + left_pad(tm.minute)
 
-def get_title(entry: feedparser.FeedParserDict) -> str:
+    except Exception as exc:
+        logger.exception(exc)
+        tm = datetime.now()
+        return str(tm.year) + left_pad(tm.month) + left_pad(tm.day) + \
+            left_pad(tm.hour) + left_pad(tm.minute)
+
+def get_title(entry: feedparser:FeedParserDict()) -> str:
     try:
         return entry['title']
 
@@ -37,16 +44,15 @@ def get_title(entry: feedparser.FeedParserDict) -> str:
         logger.exception(exc)
         return ""
 
-def get_summary(entry: feedparser.FeedParserDict) -> str:
+def get_summary(entry: feedparser.FeedParserDict()) -> str:
     try:
-        clean = re.compile("(.*?)(?=<).*", re.DOTALL)
-        return clean.match(entry['summary']).group(1)
+        return entry['summary']
 
     except Exception as exc:
         logger.exception(exc)
         return ""
 
-def get_rss_link(entry: feedparser.FeedParserDict) -> str:
+def get_rss_link(entry: feedparser.FeedParserDict()) -> str:
     try:
         return entry['link']
 
@@ -54,7 +60,7 @@ def get_rss_link(entry: feedparser.FeedParserDict) -> str:
         logger.exception(exc)
         return ""
 
-def get_date_published(entry: feedparser.FeedParserDict) -> str:
+def get_date_published(entry: feedparser.FeedParserDict()) -> str:
     try:
         return entry['published']
 
@@ -63,7 +69,7 @@ def get_date_published(entry: feedparser.FeedParserDict) -> str:
         return ""
 
 
-def map_rss(fp: feedparser.FeedParserDict) -> list:
+def map_rss(fp: feedpaser.FeedParserDict()) -> list:
     """ Map rss entry items to data template. """
     items = []
 
